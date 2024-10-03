@@ -1,0 +1,10 @@
+services:
+  jangwon_postgres:
+    container_name: jangwon_postgres
+    image: postgres:latest
+    restart: always
+    env_file:
+      - docker.env
+    ports:
+#      - ${POSTGRES_PORT}:${POSTGRES_PORT}
+      - 5432:5432
