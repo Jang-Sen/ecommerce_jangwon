@@ -10,10 +10,15 @@ export class AuthController {
   // 유저 회원가입
   @Post('/signup')
   async signupUser(@Body() createUserDto: CreateUserDto) {
-    return await this.authService.createUser(createUserDto);
+    const user = await this.authService.createUser(createUserDto);
+    await this.authService.welcomeSignupMail(user.email);
+
+    return user;
   }
 
   // 유저 로그인(email)
   @Post('/login')
-  async loggedInUser(@Body() loginUserDto: LoginUserDto) {}
+  async loggedInUser(@Body() loginUserDto: LoginUserDto) {
+    return await this.authService.loginUser(loginUserDto);
+  }
 }
