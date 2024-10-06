@@ -1,6 +1,15 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Put,
+} from '@nestjs/common';
 import { ProductService } from './product.service';
 import { CreateProductDto } from './dto/create-product.dto';
+import { UpdateProductDto } from './dto/update-product.dto';
 
 @Controller('product')
 export class ProductController {
@@ -32,6 +41,20 @@ export class ProductController {
   }
 
   // product 수정 api
+  @Put('/:productId')
+  async updateProduct(
+    @Param('productId') productId: string,
+    @Body() updateProductDto: UpdateProductDto,
+  ) {
+    return await this.productService.updateProductById(
+      productId,
+      updateProductDto,
+    );
+  }
 
   // id에 해당되는 product 삭제 api
+  @Delete('/:productId')
+  async deleteProductById(@Param('productId') productId: string) {
+    return await this.productService.deleteProductById(productId);
+  }
 }
