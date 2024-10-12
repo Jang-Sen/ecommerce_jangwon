@@ -1,15 +1,23 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
 export class CreateProductDto {
+  @IsString()
+  @IsNotEmpty()
   @ApiProperty({ example: 'iPhone 16 Pro' })
   name: string;
 
+  @IsString()
+  @IsNotEmpty()
   @ApiProperty({ example: '궁극의 iPhone.' })
   description: string;
 
+  @IsNumber()
   @ApiProperty({ example: 1550000 })
   price: number;
 
+  @IsString()
+  @IsNotEmpty()
   @ApiProperty({ example: 'Mobile' })
   category: string;
 
