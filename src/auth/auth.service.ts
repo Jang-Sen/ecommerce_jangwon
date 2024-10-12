@@ -4,12 +4,17 @@ import { CreateUserDto } from '../user/dto/create-user.dto';
 import { LoginUserDto } from '../user/dto/login-user.dto';
 import * as bcrypt from 'bcryptjs';
 import { EmailService } from '../email/email.service';
+import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
+import { TokenPayloadInterface } from './interfaces/tokenPayload.interface';
 
 @Injectable()
 export class AuthService {
   constructor(
+    private readonly configService: ConfigService,
     private readonly userService: UserService,
     private readonly emailService: EmailService,
+    private readonly jwtService: JwtService,
   ) {}
 
   // 회원가입 로직
@@ -47,5 +52,16 @@ export class AuthService {
       // text: '회원가입 메일 전송 완료',
       html: `<h1>welcome to jangwon world</h1>`,
     });
+  }
+
+  // 엑세스 토큰 발행 로직
+  public generateAccessToken(userId: string) {
+    const payload: TokenPayloadInterface = { userId };
+    const accessToken = this.jwtService.sign(payload, {
+      secret: this.configService.get('ACCESS_TOKEN_SECRET'),
+      expiresIn: this.configService.get('ACCESS_TOKEN_EXPIRATION_TIME'),
+    });
+
+    return accessToken;
   }
 }
