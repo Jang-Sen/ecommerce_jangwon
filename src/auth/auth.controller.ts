@@ -4,7 +4,10 @@ import { CreateUserDto } from '../user/dto/create-user.dto';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { RequestWithUserInterface } from './interfaces/requestWithUser.interface';
 import { AccessTokenGuard } from './guards/accessToken.guard';
+import { ApiBody, ApiTags } from '@nestjs/swagger';
+import { LoginUserDto } from '../user/dto/login-user.dto';
 
+@ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
@@ -29,6 +32,7 @@ export class AuthController {
 
   @UseGuards(LocalAuthGuard)
   @Post('/login')
+  @ApiBody({ type: LoginUserDto })
   async loggedInUser(@Req() req: RequestWithUserInterface) {
     const user = await req.user;
     const token = await this.authService.generateAccessToken(user.id);
