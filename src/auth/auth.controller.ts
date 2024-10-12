@@ -1,7 +1,8 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Post, UseGuards, Req } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from '../user/dto/create-user.dto';
-import { LoginUserDto } from '../user/dto/login-user.dto';
+import { LocalAuthGuard } from './guards/local-auth.guard';
+import { RequestWithUserInterface } from './interfaces/requestWithUser.interface';
 
 @Controller('auth')
 export class AuthController {
@@ -17,11 +18,20 @@ export class AuthController {
   }
 
   // 유저 로그인(email)
-  @Post('/login')
-  async loggedInUser(@Body() loginUserDto: LoginUserDto) {
-    const user = await this.authService.loginUser(loginUserDto);
-    const accessToken = await this.authService.generateAccessToken(user.id);
+  // @Post('/login')
+  // async loggedInUser(@Body() loginUserDto: LoginUserDto) {
+  //   const user = await this.authService.loginUser(loginUserDto);
+  //   const accessToken = await this.authService.generateAccessToken(user.id);
+  //
+  //   return { user, token: accessToken };
+  // }
 
-    return { user, token: accessToken };
+  @UseGuards(LocalAuthGuard)
+  @Post('/login')
+  async loggedInUser(@Req() req: RequestWithUserInterface) {
+    const user = await req.user;
+    const token = await this.authService.generateAccessToken(user.id);
+
+    return { user, token };
   }
 }
