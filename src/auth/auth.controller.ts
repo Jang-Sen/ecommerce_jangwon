@@ -1,4 +1,12 @@
-import { Body, Controller, Post, UseGuards, Req, Get } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Post,
+  UseGuards,
+  Req,
+  Get,
+  HttpStatus,
+} from '@nestjs/common';
 import { ApiBody, ApiTags } from '@nestjs/swagger';
 import { AuthService } from '@auth/auth.service';
 import { CreateUserDto } from '@user/dto/create-user.dto';
@@ -6,6 +14,7 @@ import { LocalAuthGuard } from '@auth/guards/local-auth.guard';
 import { RequestWithUserInterface } from '@auth/interfaces/requestWithUser.interface';
 import { AccessTokenGuard } from '@auth/guards/accessToken.guard';
 import { LoginUserDto } from '@user/dto/login-user.dto';
+import { GoogleAuthGuard } from '@auth/guards/google-auth.guard';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -45,5 +54,17 @@ export class AuthController {
   @Get()
   async authenticate(@Req() req: RequestWithUserInterface) {
     return await req.user;
+  }
+
+  @Get('/google')
+  @UseGuards(GoogleAuthGuard)
+  async googleLogin() {
+    return HttpStatus.OK;
+  }
+
+  @Get('/google/callback')
+  @UseGuards(GoogleAuthGuard)
+  async googleLoginCallback(@Req() req: RequestWithUserInterface) {
+    return req.user;
   }
 }

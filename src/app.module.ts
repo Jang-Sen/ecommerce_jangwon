@@ -23,6 +23,10 @@ import { DatabaseModule } from '@database/database.module';
         EMAIL_PASSWORD: Joi.string().required(),
         ACCESS_TOKEN_SECRET: Joi.string().required(),
         ACCESS_TOKEN_EXPIRATION_TIME: Joi.string().required(),
+
+        GOOGLE_AUTH_CLIENT_ID: Joi.string().required(),
+        GOOGLE_AUTH_CLIENT_SECRET: Joi.string().required(),
+        GOOGLE_AUTH_CALLBACK_URL: Joi.string().required(),
       }),
     }),
     DatabaseModule,

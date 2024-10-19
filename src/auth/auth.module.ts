@@ -7,10 +7,16 @@ import { AuthController } from '@auth/auth.controller';
 import { AuthService } from '@auth/auth.service';
 import { AccessTokenStrategy } from '@auth/strategies/accessToken.strategy';
 import { LocalAuthStrategy } from '@auth/strategies/local-auth.strategy';
+import { GoogleAuthStrategy } from '@auth/strategies/google-auth.strategy';
 
 @Module({
   imports: [ConfigModule, UserModule, EmailModule, JwtModule.register({})],
   controllers: [AuthController],
-  providers: [AuthService, LocalAuthStrategy, AccessTokenStrategy],
+  providers: [
+    AuthService,
+    LocalAuthStrategy,
+    AccessTokenStrategy,
+    GoogleAuthStrategy,
+  ],
 })
 export class AuthModule {}
