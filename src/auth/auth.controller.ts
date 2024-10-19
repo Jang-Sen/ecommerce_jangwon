@@ -15,6 +15,7 @@ import { RequestWithUserInterface } from '@auth/interfaces/requestWithUser.inter
 import { AccessTokenGuard } from '@auth/guards/accessToken.guard';
 import { LoginUserDto } from '@user/dto/login-user.dto';
 import { GoogleAuthGuard } from '@auth/guards/google-auth.guard';
+import { KakaoAuthGuard } from '@auth/guards/kakao-auth.guard';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -67,6 +68,21 @@ export class AuthController {
   async googleLoginCallback(@Req() req: RequestWithUserInterface) {
     const { user } = await req;
     const token = await this.authService.generateAccessToken(user.id);
+
+    return { user, token };
+  }
+
+  @Get('/kakao')
+  @UseGuards(KakaoAuthGuard)
+  async kakaoLogin() {
+    return HttpStatus.OK;
+  }
+
+  @Get('/kakao/callback')
+  @UseGuards(KakaoAuthGuard)
+  async kakaoLoginCallback(@Req() req: RequestWithUserInterface) {
+    const { user } = req;
+    const token = this.authService.generateAccessToken(user.id);
 
     return { user, token };
   }
