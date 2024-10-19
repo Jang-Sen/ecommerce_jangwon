@@ -1,8 +1,9 @@
 import { BeforeInsert, Column, Entity } from 'typeorm';
 import { BaseEntity } from '../../common/base.entity';
-import * as bcrypt from 'bcryptjs';
-import * as gravatar from 'gravatar';
 import { Exclude } from 'class-transformer';
+import { Provider } from '@user/entities/provider.enum';
+import * as gravatar from 'gravatar';
+import * as bcrypt from 'bcryptjs';
 
 @Entity()
 export class User extends BaseEntity {
@@ -23,18 +24,34 @@ export class User extends BaseEntity {
   @Column({ nullable: true })
   public profileImg?: string;
 
+  @Column({
+    type: 'enum',
+    enum: Provider,
+    default: Provider.LOCAL,
+  })
+  public provider: Provider;
+
   @BeforeInsert()
   async beforeSaveFunction(): Promise<void> {
     // 패스워드 암호화
-    const saltValue = await bcrypt.genSalt(10);
-    this.password = await bcrypt.hash(this.password, saltValue);
 
-    // 프로필 자동생성
-    this.profileImg = gravatar.url(this.email, {
-      s: '200',
-      r: 'pg',
-      d: 'mm',
-      protocol: 'https',
-    });
+    try {
+      if (this.provider !== Provider.LOCAL) {
+        return;
+      } else {
+        const saltValue = await bcrypt.genSalt(10);
+        this.password = await bcrypt.hash(this.password, saltValue);
+
+        // 프로필 자동생성
+        this.profileImg = gravatar.url(this.email, {
+          s: '200',
+          r: 'pg',
+          d: 'mm',
+          protocol: 'https',
+        });
+      }
+    } catch (e) {
+      console.log(e);
+    }
   }
 }

@@ -7,6 +7,7 @@ import {
   Matches,
   MinLength,
 } from 'class-validator';
+import { Provider } from '@user/entities/provider.enum';
 
 export class CreateUserDto {
   @IsString()
@@ -28,4 +29,10 @@ export class CreateUserDto {
   @IsNumber()
   @ApiProperty({ example: 1012345678 })
   phone?: number;
+
+  @IsString()
+  provider?: Provider;
+
+  @IsString()
+  profileImg?: string;
 }
