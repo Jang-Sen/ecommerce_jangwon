@@ -86,4 +86,9 @@ export class AuthController {
 
     return { user, token };
   }
+
+  @Post('/email/send')
+  async initEmailAddressVerification(@Body('email') email: string) {
+    return await this.authService.sendEmailVerification(email);
+  }
 }

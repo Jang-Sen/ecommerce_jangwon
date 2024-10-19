@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import * as bcrypt from 'bcryptjs';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
@@ -8,6 +8,8 @@ import { LoginUserDto } from '@user/dto/login-user.dto';
 import { EmailService } from '@email/email.service';
 import { TokenPayloadInterface } from '@auth/interfaces/tokenPayload.interface';
 import { Provider } from '@user/entities/provider.enum';
+import { CACHE_MANAGER } from '@nestjs/common/cache';
+import { Cache } from 'cache-manager';
 
 @Injectable()
 export class AuthService {
@@ -16,6 +18,7 @@ export class AuthService {
     private readonly userService: UserService,
     private readonly emailService: EmailService,
     private readonly jwtService: JwtService,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}
 
   // 회원가입 로직
@@ -65,5 +68,30 @@ export class AuthService {
     });
 
     return accessToken;
+  }
+
+  // 이메일 인증 보내는 함수
+  async sendEmailVerification(email: string) {
+    const genarateNum = this.genarateOTP();
+
+    // cache에 저장
+    await this.cacheManager.set(email, genarateNum);
+
+    return await this.emailService.sendMail({
+      to: email,
+      subject: 'jangwon service - verification email address',
+      text: `Plz random number ${genarateNum}`,
+    });
+  }
+
+  // 자동 번호 함수
+  genarateOTP() {
+    let otp = '';
+
+    for (let i = 1; i <= 6; i++) {
+      otp += Math.floor(Math.random() * 10);
+    }
+
+    return otp;
   }
 }

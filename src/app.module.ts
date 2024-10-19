@@ -8,6 +8,7 @@ import { AppController } from '@root/app.controller';
 import { AppService } from '@root/app.service';
 import { EmailModule } from '@email/email.module';
 import { DatabaseModule } from '@database/database.module';
+import { RedisModule } from './redis/redis.module';
 
 @Module({
   imports: [
@@ -31,6 +32,12 @@ import { DatabaseModule } from '@database/database.module';
         KAKAO_AUTH_CLIENT_ID: Joi.string().required(),
         // KAKAO_AUTH_CLIENT_SECRET: Joi.string().required(),
         KAKAO_AUTH_CALLBACK_URL: Joi.string().required(),
+
+        REDIS_HOST: Joi.string().required(),
+        REDIS_PORT: Joi.number().required(),
+        // REDIS_USER: Joi.string().required(),
+        // REDIS_PASSWORD: Joi.string().required(),
+        REDIS_TTL: Joi.number().required(),
       }),
     }),
     DatabaseModule,
@@ -38,6 +45,7 @@ import { DatabaseModule } from '@database/database.module';
     AuthModule,
     UserModule,
     EmailModule,
+    RedisModule,
   ],
   controllers: [AppController],
   providers: [AppService],

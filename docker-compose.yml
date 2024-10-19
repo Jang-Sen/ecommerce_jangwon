@@ -8,3 +8,11 @@ services:
     ports:
 #      - ${POSTGRES_PORT}:${POSTGRES_PORT}
       - 5432:5432
+
+  jangwon_redis:
+    container_name: jangwon_redis
+    image: "redis:alpine"
+    env_file:
+      - docker.env
+    ports:
+      - 6379:6379
