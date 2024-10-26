@@ -15,6 +15,12 @@ lerna-debug.log*
 # OS
 .DS_Store
 
+# Test js files
+test/dist/
+.tmp-compodoc-test/
+documentation
+doc
+
 # Tests
 /coverage
 /.nyc_output
