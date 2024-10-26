@@ -21,6 +21,7 @@ async function bootstrap() {
   const config = new DocumentBuilder()
     .setTitle('ecommerce_jangwon_api')
     .setDescription('ecommerce_jangwon_api description')
+    .addBearerAuth()
     .setVersion('1.0')
     .addTag('ecommerce')
     .build();

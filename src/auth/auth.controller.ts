@@ -7,7 +7,7 @@ import {
   Get,
   HttpStatus,
 } from '@nestjs/common';
-import { ApiBody, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiTags } from '@nestjs/swagger';
 import { AuthService } from '@auth/auth.service';
 import { CreateUserDto } from '@user/dto/create-user.dto';
 import { LocalAuthGuard } from '@auth/guards/local-auth.guard';
@@ -41,8 +41,8 @@ export class AuthController {
   //   return { user, token: accessToken };
   // }
 
-  @UseGuards(LocalAuthGuard)
   @Post('/login')
+  @UseGuards(LocalAuthGuard)
   @ApiBody({ type: LoginUserDto })
   async loggedInUser(@Req() req: RequestWithUserInterface) {
     const user = await req.user;
@@ -52,8 +52,9 @@ export class AuthController {
   }
 
   // 로그인 이후 토큰을 기반한 유저정보를 가져오는 API
-  @UseGuards(AccessTokenGuard)
   @Get()
+  @ApiBearerAuth()
+  @UseGuards(AccessTokenGuard)
   async authenticate(@Req() req: RequestWithUserInterface) {
     return await req.user;
   }
