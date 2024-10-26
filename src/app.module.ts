@@ -33,6 +33,10 @@ import { RedisModule } from './redis/redis.module';
         // KAKAO_AUTH_CLIENT_SECRET: Joi.string().required(),
         KAKAO_AUTH_CALLBACK_URL: Joi.string().required(),
 
+        NAVER_AUTH_CLIENT_ID: Joi.string().required(),
+        NAVER_AUTH_CLIENT_SECRET: Joi.string().required(),
+        NAVER_AUTH_CALLBACK_URL: Joi.string().required(),
+
         REDIS_HOST: Joi.string().required(),
         REDIS_PORT: Joi.number().required(),
         // REDIS_USER: Joi.string().required(),

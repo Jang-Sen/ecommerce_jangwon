@@ -16,6 +16,7 @@ import { AccessTokenGuard } from '@auth/guards/accessToken.guard';
 import { LoginUserDto } from '@user/dto/login-user.dto';
 import { GoogleAuthGuard } from '@auth/guards/google-auth.guard';
 import { KakaoAuthGuard } from '@auth/guards/kakao-auth.guard';
+import { NaverAuthGuard } from '@auth/guards/naver-auth.guard';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -82,6 +83,21 @@ export class AuthController {
   @UseGuards(KakaoAuthGuard)
   async kakaoLoginCallback(@Req() req: RequestWithUserInterface) {
     const { user } = req;
+    const token = this.authService.generateAccessToken(user.id);
+
+    return { user, token };
+  }
+
+  @Get('/naver')
+  @UseGuards(NaverAuthGuard)
+  async naverLogin() {
+    return HttpStatus.OK;
+  }
+
+  @Get('/naver/callback')
+  @UseGuards(NaverAuthGuard)
+  async naverLoginCallback(@Req() req: RequestWithUserInterface) {
+    const user = req.user;
     const token = this.authService.generateAccessToken(user.id);
 
     return { user, token };
