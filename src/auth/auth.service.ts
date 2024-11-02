@@ -60,24 +60,33 @@ export class AuthService {
   }
 
   // 엑세스 토큰 발행 로직
-  public generateAccessToken(userId: string) {
+  public generateAccessToken(userId: string): {
+    accessToken: string;
+    accessCookie: string;
+  } {
     const payload: TokenPayloadInterface = { userId };
     const accessToken = this.jwtService.sign(payload, {
       secret: this.configService.get('ACCESS_TOKEN_SECRET'),
       expiresIn: this.configService.get('ACCESS_TOKEN_EXPIRATION_TIME'),
     });
+    const accessCookie = `Authentication=${accessToken}; Path=/; Max-Age=${this.configService.get('ACCESS_TOKEN_EXPIRATION_TIME')}`;
 
-    return accessToken;
+    return { accessToken, accessCookie };
   }
 
-  public generateRefreshToken(userId: string) {
+  public generateRefreshToken(userId: string): {
+    refreshToken: string;
+    refreshCookie: string;
+  } {
     const payload: TokenPayloadInterface = { userId };
     const refreshToken = this.jwtService.sign(payload, {
       secret: this.configService.get('REFRESH_TOKEN_SECRET'),
       expiresIn: this.configService.get('REFRESH_TOKEN_EXPIRATION_TIME'),
     });
 
-    return refreshToken;
+    const refreshCookie = `Refresh=${refreshToken}; Path=/; Max-Age=${this.configService.get('REFRESH_TOKEN_EXPIRATION_TIME')}`;
+
+    return { refreshToken, refreshCookie };
   }
 
   // 이메일 인증 보내는 함수

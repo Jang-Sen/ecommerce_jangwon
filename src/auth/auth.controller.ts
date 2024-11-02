@@ -7,6 +7,7 @@ import {
   Get,
   HttpStatus,
   HttpCode,
+  Res,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiBody, ApiTags } from '@nestjs/swagger';
 import { AuthService } from '@auth/auth.service';
@@ -22,6 +23,7 @@ import { EmailDto } from '@user/dto/email.dto';
 import { ChangePasswordDto } from '@user/dto/change-password.dto';
 import { UserService } from '@user/user.service';
 import { RefreshTokenGuard } from '@auth/guards/refreshToken.guard';
+import { Response } from 'express';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -53,15 +55,25 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @UseGuards(LocalAuthGuard)
   @ApiBody({ type: LoginUserDto })
-  async loggedInUser(@Req() req: RequestWithUserInterface) {
+  async loggedInUser(
+    @Req() req: RequestWithUserInterface,
+    @Res() res: Response,
+  ) {
     const { user } = req;
-    const accessToken = this.authService.generateAccessToken(user.id);
-    const refreshToken = this.authService.generateRefreshToken(user.id);
+    const { accessToken, accessCookie: accessTokenCookie } =
+      this.authService.generateAccessToken(user.id);
+    const { refreshToken, refreshCookie: refreshTokenCookie } =
+      this.authService.generateRefreshToken(user.id);
 
     // 토큰 발급 후, refreshToken을 Redis에 저장
     await this.userService.setCurrentRefreshTokenToRedis(refreshToken, user.id);
 
-    return { user, accessToken, refreshToken };
+    //
+    res.setHeader('Set-Cookie', [accessTokenCookie, refreshTokenCookie]);
+
+    // return { user, accessToken, refreshToken };
+
+    res.send({ user });
   }
 
   // RefreshToken API -> AccessToken을 갱신하는 용도

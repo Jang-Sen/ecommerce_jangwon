@@ -107,13 +107,16 @@ export class UserService {
   async getUserIfRefreshTokenMatches(refreshToken: string, userId: string) {
     const user = await this.getUserBy('id', userId);
     const getUserIdFromRedis = await this.cacheManager.get(user.id);
+    console.log(getUserIdFromRedis);
     const isRefreshTokenMatched = await bcrypt.compare(
       refreshToken,
       getUserIdFromRedis,
     );
+    console.log(user);
 
     if (isRefreshTokenMatched) {
       return user;
     }
+    return '--------------';
   }
 }
