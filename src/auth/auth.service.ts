@@ -10,6 +10,7 @@ import { TokenPayloadInterface } from '@auth/interfaces/tokenPayload.interface';
 import { Provider } from '@user/entities/provider.enum';
 import { CACHE_MANAGER } from '@nestjs/common/cache';
 import { Cache } from 'cache-manager';
+import { async } from 'rxjs';
 
 @Injectable()
 export class AuthService {
@@ -60,33 +61,62 @@ export class AuthService {
   }
 
   // 엑세스 토큰 발행 로직
-  public generateAccessToken(userId: string): {
-    accessToken: string;
-    accessCookie: string;
+  // public generateAccessToken(userId: string): {
+  //   accessToken: string;
+  //   accessCookie: string;
+  // } {
+  //   const payload: TokenPayloadInterface = { userId };
+  //   const accessToken = this.jwtService.sign(payload, {
+  //     secret: this.configService.get('ACCESS_TOKEN_SECRET'),
+  //     expiresIn: this.configService.get('ACCESS_TOKEN_EXPIRATION_TIME'),
+  //   });
+  //   const accessCookie = `Authentication=${accessToken}; Path=/; Max-Age=${this.configService.get('ACCESS_TOKEN_EXPIRATION_TIME')}`;
+  //
+  //   return { accessToken, accessCookie };
+  // }
+  //
+  // public generateRefreshToken(userId: string): {
+  //   refreshToken: string;
+  //   refreshCookie: string;
+  // } {
+  //   const payload: TokenPayloadInterface = { userId };
+  //   const refreshToken = this.jwtService.sign(payload, {
+  //     secret: this.configService.get('REFRESH_TOKEN_SECRET'),
+  //     expiresIn: this.configService.get('REFRESH_TOKEN_EXPIRATION_TIME'),
+  //   });
+  //
+  //   const refreshCookie = `Refresh=${refreshToken}; Path=/; Max-Age=${this.configService.get('REFRESH_TOKEN_EXPIRATION_TIME')}`;
+  //
+  //   return { refreshToken, refreshCookie };
+  // }
+
+  public generateToken(
+    userId: string,
+    tokenType: 'access' | 'refresh',
+  ): {
+    token: string;
+    cookie: string;
   } {
     const payload: TokenPayloadInterface = { userId };
-    const accessToken = this.jwtService.sign(payload, {
-      secret: this.configService.get('ACCESS_TOKEN_SECRET'),
-      expiresIn: this.configService.get('ACCESS_TOKEN_EXPIRATION_TIME'),
-    });
-    const accessCookie = `Authentication=${accessToken}; Path=/; Max-Age=${this.configService.get('ACCESS_TOKEN_EXPIRATION_TIME')}`;
+    const secret = this.configService.get(
+      tokenType === 'access' ? 'ACCESS_TOKEN_SECRET' : 'REFRESH_TOKEN_SECRET',
+    );
+    const expirationTime = this.configService.get(
+      tokenType === 'access'
+        ? 'ACCESS_TOKEN_EXPIRATION_TIME'
+        : 'REFRESH_TOKEN_EXPIRATION_TIME',
+    );
 
-    return { accessToken, accessCookie };
-  }
+    const cookieName = tokenType === 'access' ? 'Authentication' : 'Refresh';
 
-  public generateRefreshToken(userId: string): {
-    refreshToken: string;
-    refreshCookie: string;
-  } {
-    const payload: TokenPayloadInterface = { userId };
-    const refreshToken = this.jwtService.sign(payload, {
-      secret: this.configService.get('REFRESH_TOKEN_SECRET'),
-      expiresIn: this.configService.get('REFRESH_TOKEN_EXPIRATION_TIME'),
+    const token = this.jwtService.sign(payload, {
+      secret,
+      expiresIn: `${expirationTime}`,
     });
 
-    const refreshCookie = `Refresh=${refreshToken}; Path=/; Max-Age=${this.configService.get('REFRESH_TOKEN_EXPIRATION_TIME')}`;
+    const cookie = `${cookieName}=${token}; Path=/; Max-Age=${expirationTime}`;
 
-    return { refreshToken, refreshCookie };
+    return { token, cookie };
   }
 
   // 이메일 인증 보내는 함수

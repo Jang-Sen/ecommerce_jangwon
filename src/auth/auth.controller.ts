@@ -23,7 +23,7 @@ import { EmailDto } from '@user/dto/email.dto';
 import { ChangePasswordDto } from '@user/dto/change-password.dto';
 import { UserService } from '@user/user.service';
 import { RefreshTokenGuard } from '@auth/guards/refreshToken.guard';
-import { Response } from 'express';
+import { Request, Response } from 'express';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -60,10 +60,10 @@ export class AuthController {
     @Res() res: Response,
   ) {
     const { user } = req;
-    const { accessToken, accessCookie: accessTokenCookie } =
-      this.authService.generateAccessToken(user.id);
-    const { refreshToken, refreshCookie: refreshTokenCookie } =
-      this.authService.generateRefreshToken(user.id);
+    const { token: accessToken, cookie: accessTokenCookie } =
+      this.authService.generateToken(user.id, 'access');
+    const { token: refreshToken, cookie: refreshTokenCookie } =
+      this.authService.generateToken(user.id, 'refresh');
 
     // 토큰 발급 후, refreshToken을 Redis에 저장
     await this.userService.setCurrentRefreshTokenToRedis(refreshToken, user.id);
@@ -81,7 +81,7 @@ export class AuthController {
   @UseGuards(RefreshTokenGuard)
   async refresh(@Req() req: RequestWithUserInterface) {
     const { user } = req;
-    const accessToken = await this.authService.generateAccessToken(user.id);
+    const accessToken = await this.authService.generateToken(user.id, 'access');
 
     return accessToken;
   }
@@ -104,7 +104,7 @@ export class AuthController {
   @UseGuards(GoogleAuthGuard)
   async googleLoginCallback(@Req() req: RequestWithUserInterface) {
     const { user } = await req;
-    const token = await this.authService.generateAccessToken(user.id);
+    const token = await this.authService.generateToken(user.id, 'access');
 
     return { user, token };
   }
@@ -117,11 +117,25 @@ export class AuthController {
 
   @Get('/kakao/callback')
   @UseGuards(KakaoAuthGuard)
-  async kakaoLoginCallback(@Req() req: RequestWithUserInterface) {
+  async kakaoLoginCallback(
+    @Req() req: RequestWithUserInterface,
+    @Res() res: Response,
+  ) {
     const { user } = req;
-    const token = this.authService.generateAccessToken(user.id);
+    const { token: accessToken, cookie: accessTokenCookie } =
+      this.authService.generateToken(user.id, 'access');
+    const { token: refreshToken, cookie: refreshTokenCookie } =
+      this.authService.generateToken(user.id, 'refresh');
 
-    return { user, token };
+    // 토큰 발급 후, refreshToken을 Redis에 저장
+    await this.userService.setCurrentRefreshTokenToRedis(refreshToken, user.id);
+
+    //
+    res.setHeader('Set-Cookie', [accessTokenCookie, refreshTokenCookie]);
+
+    // return { user, accessToken, refreshToken };
+
+    res.send({ user });
   }
 
   @Get('/naver')
@@ -134,7 +148,7 @@ export class AuthController {
   @UseGuards(NaverAuthGuard)
   async naverLoginCallback(@Req() req: RequestWithUserInterface) {
     const user = req.user;
-    const token = this.authService.generateAccessToken(user.id);
+    const token = this.authService.generateToken(user.id, 'access');
 
     return { user, token };
   }
