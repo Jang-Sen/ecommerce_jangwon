@@ -72,7 +72,7 @@ export class AuthService {
 
   // 이메일 인증 보내는 함수
   async sendEmailVerification(email: string) {
-    const genarateNum = this.genarateOTP();
+    const genarateNum = this.generateOTP();
 
     // cache에 저장
     await this.cacheManager.set(email, genarateNum);
@@ -84,8 +84,37 @@ export class AuthService {
     });
   }
 
+  // 이메일로 비밀번호 찾기
+  async findPasswordSendEmail(email: string) {
+    const payload: any = { email };
+    const user = await this.userService.getUserBy('email', email);
+
+    // 소셜로그인 시 가입자는 비밀번호 변경 불가
+    if (user.provider !== Provider.LOCAL) {
+      throw new HttpException(
+        `You can't change the password for the part you registered as a social login`,
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    // password 변경 관련 토큰 생성
+    const token = this.jwtService.sign(payload, {
+      secret: this.configService.get('FIND_PASSWORD_TOKEN_SECRET'),
+      expiresIn: this.configService.get('FIND_PASSWORD_TOKEN_EXPIRATION_TIME'),
+    });
+
+    const url = `${this.configService.get('EMAIL_BASE_URL')}/change/password?token=${token}`;
+
+    // email 전송
+    await this.emailService.sendMail({
+      to: email,
+      subject: 'jangwon mall password change',
+      text: `비밀번호 변경 ${url}`,
+    });
+  }
+
   // 자동 번호 함수
-  genarateOTP() {
+  generateOTP() {
     let otp = '';
 
     for (let i = 1; i <= 6; i++) {

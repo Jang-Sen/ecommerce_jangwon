@@ -2,7 +2,7 @@ import { NestFactory, Reflector } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ValidationPipe, ClassSerializerInterceptor } from '@nestjs/common';
-import { TransformInterceptor } from '@root/common/intercepters/transform.interceptor';
+import { TransformInterceptor } from '@root/common/interceptors/transform.interceptor';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -17,6 +17,8 @@ async function bootstrap() {
     }),
   );
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
+
+  // 프로젝트 전체에 Interceptor 적용 방식
   app.useGlobalInterceptors(new TransformInterceptor());
 
   // Swagger 환경변수
