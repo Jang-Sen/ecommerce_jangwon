@@ -23,8 +23,12 @@ import { AgreeOfTermModule } from './agree-of-term/agree-of-term.module';
         EMAIL_SERVICE: Joi.string().required(),
         EMAIL_USER: Joi.string().required(),
         EMAIL_PASSWORD: Joi.string().required(),
+
         ACCESS_TOKEN_SECRET: Joi.string().required(),
         ACCESS_TOKEN_EXPIRATION_TIME: Joi.string().required(),
+        REFRESH_TOKEN_SECRET: Joi.string().required(),
+        REFRESH_TOKEN_EXPIRATION_TIME: Joi.string().required(),
+
         FIND_PASSWORD_TOKEN_SECRET: Joi.string().required(),
         FIND_PASSWORD_TOKEN_EXPIRATION_TIME: Joi.string().required(),
         EMAIL_BASE_URL: Joi.string().required(),

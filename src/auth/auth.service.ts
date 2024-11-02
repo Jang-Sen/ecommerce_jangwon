@@ -70,6 +70,16 @@ export class AuthService {
     return accessToken;
   }
 
+  public generateRefreshToken(userId: string) {
+    const payload: TokenPayloadInterface = { userId };
+    const refreshToken = this.jwtService.sign(payload, {
+      secret: this.configService.get('REFRESH_TOKEN_SECRET'),
+      expiresIn: this.configService.get('REFRESH_TOKEN_EXPIRATION_TIME'),
+    });
+
+    return refreshToken;
+  }
+
   // 이메일 인증 보내는 함수
   async sendEmailVerification(email: string) {
     const genarateNum = this.generateOTP();

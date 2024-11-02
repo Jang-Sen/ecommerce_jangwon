@@ -21,6 +21,7 @@ import { NaverAuthGuard } from '@auth/guards/naver-auth.guard';
 import { EmailDto } from '@user/dto/email.dto';
 import { ChangePasswordDto } from '@user/dto/change-password.dto';
 import { UserService } from '@user/user.service';
+import { RefreshTokenGuard } from '@auth/guards/refreshToken.guard';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -53,10 +54,24 @@ export class AuthController {
   @UseGuards(LocalAuthGuard)
   @ApiBody({ type: LoginUserDto })
   async loggedInUser(@Req() req: RequestWithUserInterface) {
-    const user = await req.user;
-    const token = await this.authService.generateAccessToken(user.id);
+    const { user } = req;
+    const accessToken = this.authService.generateAccessToken(user.id);
+    const refreshToken = this.authService.generateRefreshToken(user.id);
 
-    return { user, token };
+    // 토큰 발급 후, refreshToken을 Redis에 저장
+    await this.userService.setCurrentRefreshTokenToRedis(refreshToken, user.id);
+
+    return { user, accessToken, refreshToken };
+  }
+
+  // RefreshToken API -> AccessToken을 갱신하는 용도
+  @Get('/refresh')
+  @UseGuards(RefreshTokenGuard)
+  async refresh(@Req() req: RequestWithUserInterface) {
+    const { user } = req;
+    const accessToken = await this.authService.generateAccessToken(user.id);
+
+    return accessToken;
   }
 
   // 로그인 이후 토큰을 기반한 유저정보를 가져오는 API

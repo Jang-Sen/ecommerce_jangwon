@@ -12,6 +12,12 @@ export class AccessTokenStrategy extends PassportStrategy(Strategy) {
     private readonly userService: UserService,
   ) {
     super({
+      // jwtFromRequest: ExtractJwt.fromExtractors([
+      //   (req: Request) => {
+      //     return req?.headers?.authorization;
+      //   },
+      //   ExtractJwt.fromAuthHeaderAsBearerToken(),
+      // ]),
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(), // 토큰의 위치
       secretOrKey: configService.get('ACCESS_TOKEN_SECRET'), // secret key 매칭
     });
