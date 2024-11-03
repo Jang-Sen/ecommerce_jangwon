@@ -77,13 +77,16 @@ export class AuthController {
   }
 
   // RefreshToken API -> AccessToken을 갱신하는 용도
-  @Get('/refresh')
   @UseGuards(RefreshTokenGuard)
+  @Get('/refresh')
   async refresh(@Req() req: RequestWithUserInterface) {
     const { user } = req;
-    const accessToken = await this.authService.generateToken(user.id, 'access');
+    const { token: accessToken, cookie: accessTokenCookie } =
+      await this.authService.generateToken(user.id, 'access');
 
-    return accessToken;
+    req.res.setHeader('Set-Cookie', [accessTokenCookie]);
+
+    return req.user;
   }
 
   // 로그인 이후 토큰을 기반한 유저정보를 가져오는 API
