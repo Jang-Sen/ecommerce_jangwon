@@ -19,7 +19,7 @@ export class CreateUserDto {
   username: string;
 
   @IsEmail()
-  @ApiProperty({ example: 'dh7895@naver.com' })
+  @ApiProperty({ example: 'dh789521@gmail.com' })
   email: string;
 
   @IsString()

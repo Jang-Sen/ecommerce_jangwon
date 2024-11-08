@@ -12,6 +12,7 @@ services:
   jangwon_redis:
     container_name: jangwon_redis
     image: "redis:alpine"
+    restart: always
     env_file:
       - docker.env
     ports:

@@ -23,7 +23,7 @@ import { EmailDto } from '@user/dto/email.dto';
 import { ChangePasswordDto } from '@user/dto/change-password.dto';
 import { UserService } from '@user/user.service';
 import { RefreshTokenGuard } from '@auth/guards/refreshToken.guard';
-import { Request, Response } from 'express';
+import { Response } from 'express';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -82,7 +82,7 @@ export class AuthController {
   async refresh(@Req() req: RequestWithUserInterface) {
     const { user } = req;
     const { token: accessToken, cookie: accessTokenCookie } =
-      await this.authService.generateToken(user.id, 'access');
+      this.authService.generateToken(user.id, 'access');
 
     req.res.setHeader('Set-Cookie', [accessTokenCookie]);
 
@@ -105,11 +105,21 @@ export class AuthController {
 
   @Get('/google/callback')
   @UseGuards(GoogleAuthGuard)
-  async googleLoginCallback(@Req() req: RequestWithUserInterface) {
-    const { user } = await req;
-    const token = await this.authService.generateToken(user.id, 'access');
+  async googleLoginCallback(
+    @Req() req: RequestWithUserInterface,
+    @Res() res: Response,
+  ) {
+    const { user } = req;
+    const { token: accessToken, cookie: accessTokenCookie } =
+      this.authService.generateToken(user.id, 'access');
+    const { token: refreshToken, cookie: refreshTokenCookie } =
+      this.authService.generateToken(user.id, 'refresh');
 
-    return { user, token };
+    await this.userService.setCurrentRefreshTokenToRedis(refreshToken, user.id);
+
+    res.setHeader('Set-Cookie', [accessTokenCookie, refreshTokenCookie]);
+
+    res.send(user);
   }
 
   @Get('/kakao')
@@ -149,11 +159,21 @@ export class AuthController {
 
   @Get('/naver/callback')
   @UseGuards(NaverAuthGuard)
-  async naverLoginCallback(@Req() req: RequestWithUserInterface) {
+  async naverLoginCallback(
+    @Req() req: RequestWithUserInterface,
+    @Res() res: Response,
+  ) {
     const user = req.user;
-    const token = this.authService.generateToken(user.id, 'access');
+    const { token: accessToken, cookie: accessTokenCookie } =
+      this.authService.generateToken(user.id, 'access');
+    const { token: refreshToken, cookie: refreshTokenCookie } =
+      this.authService.generateToken(user.id, 'refresh');
 
-    return { user, token };
+    await this.userService.setCurrentRefreshTokenToRedis(refreshToken, user.id);
+
+    res.setHeader('Set-Cookie', [accessTokenCookie, refreshTokenCookie]);
+
+    res.send(user);
   }
 
   // 이메일 확인용
