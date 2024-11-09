@@ -6,11 +6,15 @@ import {
   Param,
   Post,
   Put,
+  UseGuards,
 } from '@nestjs/common';
 import { ApiBody, ApiTags } from '@nestjs/swagger';
 import { ProductService } from '@product/product.service';
 import { CreateProductDto } from '@product/dto/create-product.dto';
 import { UpdateProductDto } from '@product/dto/update-product.dto';
+import { ObjectWithIdDto } from '@root/common/objectWithId.dto';
+import { RoleGuard } from '@auth/guards/role.guard';
+import { Role } from '@user/entities/role.enum';
 
 @ApiTags('Product')
 @Controller('product')
@@ -24,13 +28,14 @@ export class ProductController {
   }
 
   // product 상세(id) 데이터 불러오는 api
-  @Get('/:productId')
-  async getProductById(@Param('productId') productId: string) {
-    return await this.productService.getProductById(productId);
+  @Get('/:id')
+  async getProductById(@Param() { id }: ObjectWithIdDto) {
+    return await this.productService.getProductById(id);
   }
 
   // product 신규 등록 api
   @Post('/new')
+  @UseGuards(RoleGuard(Role.ADMIN))
   async createProduct(
     // @Body('name') name: string,
     // @Body('description') description: string,
@@ -43,21 +48,20 @@ export class ProductController {
   }
 
   // product 수정 api
-  @Put('/:productId')
+  @Put('/:id')
+  @UseGuards(RoleGuard(Role.ADMIN))
   @ApiBody({ type: CreateProductDto })
   async updateProduct(
-    @Param('productId') productId: string,
+    @Param() { id }: ObjectWithIdDto,
     @Body() updateProductDto: UpdateProductDto,
   ) {
-    return await this.productService.updateProductById(
-      productId,
-      updateProductDto,
-    );
+    return await this.productService.updateProductById(id, updateProductDto);
   }
 
   // id에 해당되는 product 삭제 api
-  @Delete('/:productId')
-  async deleteProductById(@Param('productId') productId: string) {
-    return await this.productService.deleteProductById(productId);
+  @Delete('/:id')
+  @UseGuards(RoleGuard(Role.ADMIN))
+  async deleteProductById(@Param() { id }: ObjectWithIdDto) {
+    return await this.productService.deleteProductById(id);
   }
 }

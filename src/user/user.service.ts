@@ -57,12 +57,19 @@ export class UserService {
   //   return user;
   // }
 
+  // 전체 유저정보 가져오기
+  async getUserByAll() {
+    return await this.userRepository.find();
+  }
+
+  // 특정 id or email 기반 유저 정보 가져오기
   async getUserBy(key: 'id' | 'email', value: string) {
     const user = await this.userRepository.findOneBy({ [key]: value });
     if (user) return user;
     throw new NotFoundException(`User with this ${key} does not exist`);
   }
 
+  // 비밀번호 변경 로직
   async changePasswordWithToken(token: string, newPassword: string) {
     const { email } = await this.jwtService.verify(token, {
       secret: this.configService.get('FIND_PASSWORD_TOKEN_SECRET'),
