@@ -1,4 +1,24 @@
 services:
+  jangwon_backend:
+    container_name: jangwon_api
+    build:
+      dockerfile: Dockerfile
+      context: .
+      target: development
+
+    volumes:
+      - .:/usr/src/app
+    env_file:
+      - .env
+    command: npm run start:dev
+    ports:
+      - 8000:8000
+    depends_on:
+      - jangwon_postgres
+      - jangwon_redis
+    networks:
+      - jangwon-networks
+
   jangwon_postgres:
     container_name: jangwon_postgres
     image: postgres:latest
@@ -8,6 +28,8 @@ services:
     ports:
 #      - ${POSTGRES_PORT}:${POSTGRES_PORT}
       - 5432:5432
+    networks:
+      - jangwon-networks
 
   jangwon_redis:
     container_name: jangwon_redis
@@ -17,3 +39,9 @@ services:
       - docker.env
     ports:
       - 6379:6379
+    networks:
+      - jangwon-networks
+
+networks:
+  jangwon-networks:
+    driver: bridge
