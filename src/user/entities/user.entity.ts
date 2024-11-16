@@ -39,6 +39,7 @@ export class User extends BaseEntity {
     array: true,
     default: [Role.USER],
   })
+  @Exclude()
   public roles: Role[];
 
   @OneToOne(() => AgreeOfTerm, {

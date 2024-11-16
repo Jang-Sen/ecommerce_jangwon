@@ -16,6 +16,9 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { CACHE_MANAGER } from '@nestjs/common/cache';
 import { Cache } from 'cache-manager';
+import { PageOptionsDto } from '@root/common/dtos/page-options.dto';
+import { PageDto } from '@root/common/dtos/page.dto';
+import { PageMetaDto } from '@root/common/dtos/page-meta.dto';
 
 @Injectable()
 export class UserService {
@@ -29,7 +32,7 @@ export class UserService {
 
   // 회원 등록하는 로직
   async createUser(createUserDto: CreateUserDto) {
-    const newUser = await this.userRepository.create(createUserDto);
+    const newUser = this.userRepository.create(createUserDto);
     await this.userRepository.save(newUser);
 
     return newUser;
@@ -58,8 +61,28 @@ export class UserService {
   // }
 
   // 전체 유저정보 가져오기
-  async getUserByAll() {
-    return await this.userRepository.find();
+  async getUserByAll(pageOptionsDto: PageOptionsDto): Promise<PageDto<User>> {
+    const queryBuilder = this.userRepository.createQueryBuilder('user');
+
+    if (pageOptionsDto.keyword) {
+      queryBuilder.andWhere('user.username = :username', {
+        username: pageOptionsDto.keyword,
+      });
+    }
+
+    queryBuilder
+      .leftJoinAndSelect('user.agreeOfTerm', 'agreeOfTerm')
+      .orderBy('user.createdAt', 'ASC')
+      .skip(pageOptionsDto.skip)
+      .take(pageOptionsDto.take);
+
+    const itemCount = await queryBuilder.getCount();
+    const { entities } = await queryBuilder.getRawAndEntities();
+
+    const pageMetaDto = new PageMetaDto({ pageOptionsDto, itemCount });
+
+    return new PageDto(entities, pageMetaDto);
+    // return await this.userRepository.find();
   }
 
   // 특정 id or email 기반 유저 정보 가져오기
