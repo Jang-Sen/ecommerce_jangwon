@@ -48,6 +48,9 @@ doc
 .env.production.local
 .env.local
 
+# cert
+.cert
+
 # temp directory
 .temp
 .tmp

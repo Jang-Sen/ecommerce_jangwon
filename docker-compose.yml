@@ -8,8 +8,8 @@ services:
       - ./.cert/cert.pem:/etc/nginx/.cert/cert.pem
       - ./.cert/key.pem:/etc/nginx/.cert/key.pem
     ports:
-      - 80:80
-      - 443:443
+      - "80:80"
+      - "443:443"
     depends_on:
       - jangwon_backend_01
       - jangwon_backend_02
@@ -22,14 +22,13 @@ services:
       dockerfile: Dockerfile
       context: .
       target: development
-
     volumes:
       - .:/usr/src/app
     env_file:
       - .env
     command: npm run start:dev
     ports:
-      - 8000:8000
+      - "${BACKEND_PORT}:${BACKEND_PORT}"
     depends_on:
       - jangwon_postgres
       - jangwon_redis
@@ -42,14 +41,13 @@ services:
       dockerfile: Dockerfile
       context: .
       target: development
-
     volumes:
       - .:/usr/src/app
     env_file:
       - .env
     command: npm run start:dev
     ports:
-      - 8001:8000
+      - "${BACKEND_02_PORT}:${BACKEND_PORT}"
     depends_on:
       - jangwon_postgres
       - jangwon_redis
@@ -63,19 +61,18 @@ services:
     env_file:
       - docker.env
     ports:
-#      - ${POSTGRES_PORT}:${POSTGRES_PORT}
-      - 5432:5432
+      - "${POSTGRES_PORT}:${POSTGRES_PORT}"
     networks:
       - jangwon-networks
 
   jangwon_redis:
     container_name: jangwon_redis
-    image: "redis:alpine"
+    image: redis:alpine
     restart: always
     env_file:
       - docker.env
     ports:
-      - 6379:6379
+      - "${REDIS_PORT}:${REDIS_PORT}"
     networks:
       - jangwon-networks
 

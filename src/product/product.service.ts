@@ -4,6 +4,9 @@ import { Repository } from 'typeorm';
 import { CreateProductDto } from '@product/dto/create-product.dto';
 import { UpdateProductDto } from '@product/dto/update-product.dto';
 import { Product } from '@product/entities/product.entity';
+import { PageDto } from '@root/common/dtos/page.dto';
+import { PageOptionsDto } from '@root/common/dtos/page-options.dto';
+import { PageMetaDto } from '@root/common/dtos/page-meta.dto';
 
 @Injectable()
 export class ProductService {
@@ -12,8 +15,22 @@ export class ProductService {
     private productRepository: Repository<Product>,
   ) {}
 
-  async getAllProducts() {
-    return await this.productRepository.find();
+  async getAllProducts(
+    pageOptionsDto: PageOptionsDto,
+  ): Promise<PageDto<Product>> {
+    // return await this.productRepository.find();
+    const queryBuilder = this.productRepository.createQueryBuilder('product');
+    queryBuilder
+      .orderBy('product.createdAt', 'ASC')
+      .skip(pageOptionsDto.skip)
+      .take(pageOptionsDto.take);
+
+    const itemCount = await queryBuilder.getCount();
+    const { entities } = await queryBuilder.getRawAndEntities();
+
+    const pageMetaDto = new PageMetaDto({ itemCount, pageOptionsDto });
+
+    return new PageDto(entities, pageMetaDto);
   }
 
   async getProductById(productId: string) {

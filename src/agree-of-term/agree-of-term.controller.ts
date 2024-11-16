@@ -1,7 +1,7 @@
 import { Body, Controller, Post, Put, Req, UseGuards } from '@nestjs/common';
 import { AgreeOfTermService } from './agree-of-term.service';
 import { CreateAgreeOfTermDto } from '@root/agree-of-term/dto/create-agree-of-term.dto';
-import { ApiBearerAuth, ApiBody, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiTags } from '@nestjs/swagger';
 import { AccessTokenGuard } from '@auth/guards/accessToken.guard';
 import { RequestWithUserInterface } from '@auth/interfaces/requestWithUser.interface';
 import { UpdateAgreeOfTermDto } from '@root/agree-of-term/dto/update-agree-of-term.dto';
@@ -14,7 +14,6 @@ export class AgreeOfTermController {
   // 생성 API
   @Post()
   @UseGuards(AccessTokenGuard)
-  @ApiBearerAuth()
   @ApiBody({ type: CreateAgreeOfTermDto })
   async createAgreeOfTerm(
     @Req() req: RequestWithUserInterface,
@@ -25,7 +24,6 @@ export class AgreeOfTermController {
 
   @Put()
   @UseGuards(AccessTokenGuard)
-  @ApiBearerAuth()
   @ApiBody({ type: CreateAgreeOfTermDto })
   async updateAgreeOfTerm(
     @Req() req: RequestWithUserInterface,

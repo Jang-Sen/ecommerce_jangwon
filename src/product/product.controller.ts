@@ -6,6 +6,7 @@ import {
   Param,
   Post,
   Put,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { ApiBody, ApiTags } from '@nestjs/swagger';
@@ -15,6 +16,9 @@ import { UpdateProductDto } from '@product/dto/update-product.dto';
 import { ObjectWithIdDto } from '@root/common/objectWithId.dto';
 import { RoleGuard } from '@auth/guards/role.guard';
 import { Role } from '@user/entities/role.enum';
+import { Product } from '@product/entities/product.entity';
+import { PageOptionsDto } from '@root/common/dtos/page-options.dto';
+import { PageDto } from '@root/common/dtos/page.dto';
 
 @ApiTags('Product')
 @Controller('product')
@@ -23,13 +27,15 @@ export class ProductController {
 
   // product 전체 데이터 불러오는 api
   @Get('/all')
-  async getAllProducts() {
-    return await this.productService.getAllProducts();
+  async getAllProducts(
+    @Query() pageOptionsDto: PageOptionsDto,
+  ): Promise<PageDto<Product>> {
+    return await this.productService.getAllProducts(pageOptionsDto);
   }
 
   // product 상세(id) 데이터 불러오는 api
   @Get('/:id')
-  async getProductById(@Param() { id }: ObjectWithIdDto) {
+  async getProductById(@Param() { id }: ObjectWithIdDto): Promise<Product> {
     return await this.productService.getProductById(id);
   }
 
@@ -43,7 +49,7 @@ export class ProductController {
     // @Body('category') category: string,
     // @Body('productImg') productImg: string,
     @Body() createProductDto: CreateProductDto,
-  ) {
+  ): Promise<Product> {
     return await this.productService.createProduct(createProductDto);
   }
 
