@@ -4,9 +4,9 @@ import { Repository } from 'typeorm';
 import { CreateProductDto } from '@product/dto/create-product.dto';
 import { UpdateProductDto } from '@product/dto/update-product.dto';
 import { Product } from '@product/entities/product.entity';
-import { PageDto } from '@root/common/dtos/page.dto';
-import { PageOptionsDto } from '@root/common/dtos/page-options.dto';
-import { PageMetaDto } from '@root/common/dtos/page-meta.dto';
+import { PageDto } from '@root/common/dto/page.dto';
+import { PageOptionsDto } from '@root/common/dto/page-options.dto';
+import { PageMetaDto } from '@root/common/dto/page-meta.dto';
 
 @Injectable()
 export class ProductService {

@@ -16,9 +16,9 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { CACHE_MANAGER } from '@nestjs/common/cache';
 import { Cache } from 'cache-manager';
-import { PageOptionsDto } from '@root/common/dtos/page-options.dto';
-import { PageDto } from '@root/common/dtos/page.dto';
-import { PageMetaDto } from '@root/common/dtos/page-meta.dto';
+import { PageOptionsDto } from '@root/common/dto/page-options.dto';
+import { PageDto } from '@root/common/dto/page.dto';
+import { PageMetaDto } from '@root/common/dto/page-meta.dto';
 
 @Injectable()
 export class UserService {

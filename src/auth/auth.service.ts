@@ -10,7 +10,6 @@ import { TokenPayloadInterface } from '@auth/interfaces/tokenPayload.interface';
 import { Provider } from '@user/entities/provider.enum';
 import { CACHE_MANAGER } from '@nestjs/common/cache';
 import { Cache } from 'cache-manager';
-import { async } from 'rxjs';
 
 @Injectable()
 export class AuthService {

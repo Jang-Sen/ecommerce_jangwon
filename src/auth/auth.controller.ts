@@ -9,7 +9,7 @@ import {
   HttpCode,
   Res,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiBody, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { AuthService } from '@auth/auth.service';
 import { CreateUserDto } from '@user/dto/create-user.dto';
 import { LocalAuthGuard } from '@auth/guards/local-auth.guard';
@@ -35,6 +35,8 @@ export class AuthController {
 
   // 유저 회원가입
   @Post('/signup')
+  @ApiOperation({ summary: '회원가입 API' })
+  @ApiBody({ type: CreateUserDto })
   async signupUser(@Body() createUserDto: CreateUserDto) {
     const user = await this.authService.createUser(createUserDto);
     // await this.authService.welcomeSignupMail(user.email);
@@ -54,6 +56,7 @@ export class AuthController {
   @Post('/login')
   @HttpCode(HttpStatus.OK)
   @UseGuards(LocalAuthGuard)
+  @ApiOperation({ summary: '로그인 API' })
   @ApiBody({ type: LoginUserDto })
   async loggedInUser(
     @Req() req: RequestWithUserInterface,
@@ -77,34 +80,46 @@ export class AuthController {
   }
 
   // RefreshToken API -> AccessToken을 갱신하는 용도
-  @UseGuards(RefreshTokenGuard)
   @Get('/refresh')
-  async refresh(@Req() req: RequestWithUserInterface) {
+  @UseGuards(RefreshTokenGuard)
+  @ApiOperation({
+    summary: 'Refresh Token API',
+    description: 'Access Token 갱신 용도',
+  })
+  async refresh(@Req() req: RequestWithUserInterface, @Res() res: Response) {
     const { user } = req;
     const { token: accessToken, cookie: accessTokenCookie } =
       this.authService.generateToken(user.id, 'access');
 
-    req.res.setHeader('Set-Cookie', [accessTokenCookie]);
+    res.setHeader('Set-Cookie', [accessTokenCookie]);
 
-    return req.user;
+    res.send({ user });
   }
 
   // 로그인 이후 토큰을 기반한 유저정보를 가져오는 API
   @Get()
-  @ApiBearerAuth()
   @UseGuards(AccessTokenGuard)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: '개인 정보 API',
+    description: '로그인 이후 토큰을 기반한 정보 가져오는 API',
+  })
   async authenticate(@Req() req: RequestWithUserInterface) {
-    return await req.user;
+    return req.user;
   }
 
+  // 구글 로그인
   @Get('/google')
   @UseGuards(GoogleAuthGuard)
+  @ApiOperation({ summary: '구글 로그인 API' })
   async googleLogin() {
     return HttpStatus.OK;
   }
 
+  // 구글 로그인 콜백
   @Get('/google/callback')
   @UseGuards(GoogleAuthGuard)
+  @ApiOperation({ summary: '구글 로그인 콜백 API' })
   async googleLoginCallback(
     @Req() req: RequestWithUserInterface,
     @Res() res: Response,
@@ -119,17 +134,20 @@ export class AuthController {
 
     res.setHeader('Set-Cookie', [accessTokenCookie, refreshTokenCookie]);
 
-    res.send(user);
+    res.send({ user });
   }
 
+  // 카카오 로그인
   @Get('/kakao')
   @UseGuards(KakaoAuthGuard)
+  @ApiOperation({ summary: '카카오 로그인 API' })
   async kakaoLogin() {
     return HttpStatus.OK;
   }
 
   @Get('/kakao/callback')
   @UseGuards(KakaoAuthGuard)
+  @ApiOperation({ summary: '카카오 로그인 콜백 API' })
   async kakaoLoginCallback(
     @Req() req: RequestWithUserInterface,
     @Res() res: Response,
@@ -153,12 +171,14 @@ export class AuthController {
 
   @Get('/naver')
   @UseGuards(NaverAuthGuard)
+  @ApiOperation({ summary: '네이버 로그인 API' })
   async naverLogin() {
     return HttpStatus.OK;
   }
 
   @Get('/naver/callback')
   @UseGuards(NaverAuthGuard)
+  @ApiOperation({ summary: '네이버 로그인 콜백 API' })
   async naverLoginCallback(
     @Req() req: RequestWithUserInterface,
     @Res() res: Response,
@@ -173,21 +193,26 @@ export class AuthController {
 
     res.setHeader('Set-Cookie', [accessTokenCookie, refreshTokenCookie]);
 
-    res.send(user);
+    res.send({ user });
   }
 
   // 이메일 확인용
   @Post('/email/send')
+  @ApiOperation({ summary: '이메일 확인용 API' })
   async initEmailAddressVerification(@Body('email') email: string) {
     return await this.authService.sendEmailVerification(email);
   }
 
+  // 비밀번호 찾는 메일 보내기
   @Post('/find/password')
+  @ApiOperation({ summary: '비밀번호 찾는 메일 보내는 API' })
   async findPassword(@Body() emailDto: EmailDto) {
     return await this.authService.findPasswordSendEmail(emailDto.email);
   }
 
+  // 비밀번호 변경
   @Post('/change/password')
+  @ApiOperation({ summary: '비밀번호 변경 API' })
   async changePassword(@Body() changePasswordDto: ChangePasswordDto) {
     const { token, password } = changePasswordDto;
     return await this.userService.changePasswordWithToken(token, password);
