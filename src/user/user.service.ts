@@ -65,14 +65,14 @@ export class UserService {
     const queryBuilder = this.userRepository.createQueryBuilder('user');
 
     if (pageOptionsDto.keyword) {
-      queryBuilder.andWhere('user.username = :username', {
-        username: pageOptionsDto.keyword,
+      queryBuilder.andWhere('user.username LIKE :keyword', {
+        keyword: `%${pageOptionsDto.keyword}%`,
       });
     }
 
     queryBuilder
       .leftJoinAndSelect('user.agreeOfTerm', 'agreeOfTerm')
-      .orderBy('user.createdAt', 'ASC')
+      .orderBy('user.createdAt', pageOptionsDto.order)
       .skip(pageOptionsDto.skip)
       .take(pageOptionsDto.take);
 

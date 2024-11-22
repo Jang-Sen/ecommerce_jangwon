@@ -20,8 +20,20 @@ export class ProductService {
   ): Promise<PageDto<Product>> {
     // return await this.productRepository.find();
     const queryBuilder = this.productRepository.createQueryBuilder('product');
+
+    if (pageOptionsDto.keyword) {
+      queryBuilder.andWhere(
+        'product.name LIKE :keyword OR product.category LIKE :keyword',
+        { keyword: `%${pageOptionsDto.keyword}%` },
+      );
+    }
+
+    // if () {
+    //   queryBuilder.orderBy('product.')
+    // }
+
     queryBuilder
-      .orderBy('product.createdAt', 'ASC')
+      .orderBy(`product.${pageOptionsDto.sort}`, pageOptionsDto.order)
       .skip(pageOptionsDto.skip)
       .take(pageOptionsDto.take);
 
