@@ -2,12 +2,36 @@
   "compilerOptions": {
     "baseUrl": "/",
     "paths": {
-      "@root/*": ["./src/*"],
-      "@database/*": ["./src/database/*"],
-      "@email/*": ["./src/email/*"],
-      "@auth/*": ["./src/auth/*"],
-      "@user/*": ["./src/user/*"],
-      "@product/*": ["./src/product/*"],
+      "@root/*": [
+        "./src/*"
+      ],
+      "@agree-of-term": [
+        "./src/agree-of-term/*"
+      ],
+      "@auth/*": [
+        "./src/auth/*"
+      ],
+      "@common/*": [
+        "./src/common/*"
+      ],
+      "@database/*": [
+        "./src/database/*"
+      ],
+      "@email/*": [
+        "./src/email/*"
+      ],
+      "@minio-client/*": [
+        "./src/minio-client/*"
+      ],
+      "@product/*": [
+        "./src/product/*"
+      ],
+      "@redis/*": [
+        "./src/redis/*"
+      ],
+      "@user/*": [
+        "./src/user/*"
+      ]
     }
   }
 }
