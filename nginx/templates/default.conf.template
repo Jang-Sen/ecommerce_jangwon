@@ -1,7 +1,6 @@
 upstream backend1 {
 
-    server jangwon_backend_01:8000 weight=5;
-    server jangwon_backend_02:8001;
+    server jangwon_backend_01:8000;
 }
 
 server {
