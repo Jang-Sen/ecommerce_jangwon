@@ -78,13 +78,15 @@ services:
       - jangwon-networks
 
   jangwon_minio:
-    image: docker.io/bitnami/minio:2022
+    image: quay.io/minio/minio:RELEASE.2024-11-07T00-52-20Z
+    command: server --address ":9000" --console-address ":9001" /data
+    volumes:
+      - ./minio_storage:/data
     env_file:
       - docker.env
     ports:
       - "9000:9000"
       - "9001:9001"
-    platform: linux/amd64
     networks:
       - jangwon-networks
 

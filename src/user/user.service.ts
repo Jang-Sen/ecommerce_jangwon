@@ -7,7 +7,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, UpdateResult } from 'typeorm';
 import { CreateUserDto } from '@user/dto/create-user.dto';
 import { User } from '@user/entities/user.entity';
 import { Provider } from '@user/entities/provider.enum';
@@ -19,6 +19,8 @@ import { Cache } from 'cache-manager';
 import { PageOptionsDto } from '@root/common/dto/page-options.dto';
 import { PageDto } from '@root/common/dto/page.dto';
 import { PageMetaDto } from '@root/common/dto/page-meta.dto';
+import { MinioClientService } from '@minio-client/minio-client.service';
+import { BufferedFile } from '@minio-client/interface/file.model';
 
 @Injectable()
 export class UserService {
@@ -27,6 +29,7 @@ export class UserService {
     private userRepository: Repository<User>,
     private readonly configService: ConfigService,
     private readonly jwtService: JwtService,
+    private readonly minioClientService: MinioClientService,
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}
 
@@ -148,5 +151,22 @@ export class UserService {
       return user;
     }
     return '--------------';
+  }
+
+  async updateUserInfoByToken(
+    user: User,
+    img?: BufferedFile,
+    updateUserDto?: CreateUserDto,
+  ): Promise<UpdateResult> {
+    const profileImg = await this.minioClientService.uploadProfileImg(
+      user,
+      img,
+      'profile',
+    );
+
+    return await this.userRepository.update(user.id, {
+      ...updateUserDto,
+      profileImg,
+    });
   }
 }

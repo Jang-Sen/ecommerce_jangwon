@@ -1,14 +1,14 @@
-import { BeforeInsert, Column, Entity, OneToOne, JoinColumn } from 'typeorm';
-import { BaseEntity } from '../../common/base.entity';
+import { BeforeInsert, Column, Entity, JoinColumn, OneToOne } from 'typeorm';
 import { Exclude } from 'class-transformer';
 import { Provider } from '@user/entities/provider.enum';
 import * as gravatar from 'gravatar';
 import * as bcrypt from 'bcryptjs';
 import { AgreeOfTerm } from '@root/agree-of-term/entities/agree-of-term.entity';
 import { Role } from '@user/entities/role.enum';
+import { Base } from '@common/entities/base.entity';
 
 @Entity()
-export class User extends BaseEntity {
+export class User extends Base {
   // username, email, password, phone
   @Column()
   public username: string;
