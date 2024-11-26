@@ -153,6 +153,7 @@ export class UserService {
     return '--------------';
   }
 
+  // 유저의 토큰을 이용해 프로필 사진 수정 로직
   async updateUserInfoByToken(
     user: User,
     img?: BufferedFile,

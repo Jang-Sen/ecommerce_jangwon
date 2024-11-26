@@ -1,4 +1,10 @@
-import { BadRequestException, Injectable, Logger } from '@nestjs/common';
+import {
+  BadRequestException,
+  HttpException,
+  HttpStatus,
+  Injectable,
+  Logger,
+} from '@nestjs/common';
 import { MinioClient, MinioService } from 'nestjs-minio-client';
 import { ConfigService } from '@nestjs/config';
 import { User } from '@user/entities/user.entity';
@@ -22,19 +28,20 @@ export class MinioClientService {
     this.baseBucket = this.configService.get('MINIO_BUCKET');
   }
 
+  // 프로필 이미지 파일 업로드하는 로직
   public async uploadProfileImg(
     user: User,
     file: BufferedFile,
     categoryName: string,
     baseBucket: string = this.baseBucket,
-  ) {
+  ): Promise<string> {
     console.log('+++++++++++++++++++file = ' + file);
-    // if (!(file.mimetype.includes('jpg') || file.mimetype.includes('png'))) {
-    //   throw new HttpException(
-    //     'Error uploading file format',
-    //     HttpStatus.BAD_REQUEST,
-    //   );
-    // }
+    if (!(file.mimetype.includes('jpg') || file.mimetype.includes('png'))) {
+      throw new HttpException(
+        'Error uploading file format',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
 
     const temp_filename = Date.now().toString();
     const hashedFileName = crypto
