@@ -22,6 +22,7 @@ import { CreateUserDto } from '@user/dto/create-user.dto';
 import { RequestWithUserInterface } from '@auth/interfaces/requestWithUser.interface';
 import { BufferedFile } from '@minio-client/interface/file.model';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { RoleGuard } from '@auth/guards/role.guard';
 
 @ApiTags('User')
 @Controller('user')
@@ -29,6 +30,7 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Get('/all')
+  @UseGuards(RoleGuard(Role.ADMIN))
   @ApiOperation({
     summary: '전체 조회 API',
     description: `${Role.ADMIN}만 이용가능`,
@@ -40,6 +42,7 @@ export class UserController {
   }
 
   @Get('/:id')
+  @UseGuards(RoleGuard(Role.ADMIN))
   @ApiOperation({
     summary: 'Id로 회원 조회 API',
     description: `${Role.ADMIN}만 이용가능`,
@@ -66,6 +69,9 @@ export class UserController {
     },
   })
   @ApiConsumes('multipart/form-data')
+  @ApiOperation({
+    summary: '회원 프로필 사진 변경',
+  })
   async updateUserImg(
     @Req() req: RequestWithUserInterface,
     @Body() updateUserDto?: CreateUserDto,

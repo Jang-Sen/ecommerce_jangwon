@@ -1,10 +1,4 @@
-import {
-  BadRequestException,
-  HttpException,
-  HttpStatus,
-  Injectable,
-  Logger,
-} from '@nestjs/common';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { MinioClient, MinioService } from 'nestjs-minio-client';
 import { ConfigService } from '@nestjs/config';
 import { User } from '@user/entities/user.entity';
@@ -36,12 +30,12 @@ export class MinioClientService {
     baseBucket: string = this.baseBucket,
   ): Promise<string> {
     console.log('+++++++++++++++++++file = ' + file);
-    if (!(file.mimetype.includes('jpg') || file.mimetype.includes('png'))) {
-      throw new HttpException(
-        'Error uploading file format',
-        HttpStatus.BAD_REQUEST,
-      );
-    }
+    // if (!(file.mimetype.includes('jpg') || file.mimetype.includes('png'))) {
+    //   throw new HttpException(
+    //     'Error uploading file format',
+    //     HttpStatus.BAD_REQUEST,
+    //   );
+    // }
 
     const temp_filename = Date.now().toString();
     const hashedFileName = crypto
@@ -69,8 +63,6 @@ export class MinioClientService {
       fileBuffer.length,
       metaData,
       function (err) {
-        console.log(err.message);
-
         if (err) {
           throw new BadRequestException('Error Upload Error: ' + err.message);
         }

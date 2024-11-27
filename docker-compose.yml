@@ -79,6 +79,7 @@ services:
 
   jangwon_minio:
     #    image: quay.io/minio/minio:RELEASE.2024-11-07T00-52-20Z
+    container_name: jangwon_minio
     image: docker.io/bitnami/minio:2022
     #    command: server --address ":9000" --console-address ":9001" /data
     #    volumes:
