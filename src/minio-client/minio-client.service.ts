@@ -4,6 +4,7 @@ import { ConfigService } from '@nestjs/config';
 import { User } from '@user/entities/user.entity';
 import { BufferedFile } from '@minio-client/interface/file.model';
 import * as crypto from 'crypto';
+import { Product } from '@product/entities/product.entity';
 
 @Injectable()
 export class MinioClientService {
@@ -20,6 +21,66 @@ export class MinioClientService {
   ) {
     this.logger = new Logger('MinioClientService');
     this.baseBucket = this.configService.get('MINIO_BUCKET');
+  }
+
+  // 제품 이미지 파일 업로드하는 로직
+  public async uploadProductImg(
+    product: Product,
+    file: BufferedFile,
+    categoryName: string,
+    baseBucket: string = this.baseBucket,
+  ): Promise<string> {
+    if (
+      !(
+        file.mimetype.includes('png') ||
+        file.mimetype.includes('jpg') ||
+        file.mimetype.includes('jpeg')
+      )
+    ) {
+      throw new HttpException('Error Upload File.', HttpStatus.BAD_REQUEST);
+    }
+
+    const temp_fileName = Date.now().toString();
+    const hashedFileName = crypto
+      .createHash('md5')
+      .update(temp_fileName)
+      .digest('hex');
+    const ext = file.originalname.substring(
+      file.originalname.lastIndexOf('.'),
+      file.originalname.length,
+    );
+    const metaData = {
+      'Content-Type': file.mimetype,
+      'X-Amz-Meta-Testing': 1234,
+    };
+
+    const fileName = hashedFileName + ext;
+    const fileBuffer = file.buffer;
+    const filePath = `${categoryName}/${product.id}/${fileName}`;
+
+    await new Promise<void>((resolve, reject) => {
+      this.client.putObject(
+        baseBucket,
+        filePath,
+        fileBuffer,
+        fileBuffer.length,
+        metaData,
+        (err) => {
+          if (err) {
+            console.log('Error uploading file:', err.message);
+            return reject(
+              new HttpException('Error uploading file', HttpStatus.BAD_REQUEST),
+            );
+          }
+          resolve();
+        },
+      );
+    });
+
+    // console.log(
+    //   `http://${this.configService.get('MINIO_ENDPOINT')}:${this.configService.get('MINIO_PORT')}/${this.configService.get('MINIO_BUCKET')}/${filePath}`,
+    // );
+    return `http://${this.configService.get('MINIO_ENDPOINT')}:${this.configService.get('MINIO_PORT')}/${this.configService.get('MINIO_BUCKET')}/${filePath}`;
   }
 
   // 프로필 이미지 파일 업로드하는 로직
@@ -96,7 +157,7 @@ export class MinioClientService {
     return `http://${this.configService.get('MINIO_ENDPOINT')}:${this.configService.get('MINIO_PORT')}/${this.configService.get('MINIO_BUCKET')}/${filePath}`;
   }
 
-  //
+  // 프로필 사진 업로드 전, 기존 파일 삭제 로직
   async deleteFolderContents(bucketName: string, folderPath: string) {
     const objectList = [];
     const stream = this.client.listObjects(bucketName, folderPath, true);

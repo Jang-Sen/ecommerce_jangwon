@@ -7,12 +7,15 @@ import { Product } from '@product/entities/product.entity';
 import { PageDto } from '@root/common/dto/page.dto';
 import { PageOptionsDto } from '@root/common/dto/page-options.dto';
 import { PageMetaDto } from '@root/common/dto/page-meta.dto';
+import { MinioClientService } from '@minio-client/minio-client.service';
+import { BufferedFile } from '@minio-client/interface/file.model';
 
 @Injectable()
 export class ProductService {
   constructor(
     @InjectRepository(Product)
     private productRepository: Repository<Product>,
+    private readonly minioClientService: MinioClientService,
   ) {}
 
   async getAllProducts(
@@ -73,8 +76,21 @@ export class ProductService {
     return deleteResponse;
   }
 
-  async updateProductById(id: string, dto: UpdateProductDto) {
-    const updateProduct = await this.productRepository.update(id, dto);
+  async updateProductById(
+    productId: string,
+    dto?: UpdateProductDto,
+    img?: BufferedFile,
+  ) {
+    const product = await this.getProductById(productId);
+    const updateProductImg = await this.minioClientService.uploadProductImg(
+      product,
+      img,
+      'product',
+    );
+    const updateProduct = await this.productRepository.update(product.id, {
+      ...dto,
+      productImg: updateProductImg,
+    });
 
     if (!updateProduct) {
       throw new NotFoundException('Product Not Found');

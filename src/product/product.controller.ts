@@ -7,15 +7,11 @@ import {
   Post,
   Put,
   Query,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
-import {
-  ApiBody,
-  ApiOperation,
-  ApiParam,
-  ApiQuery,
-  ApiTags,
-} from '@nestjs/swagger';
+import { ApiBody, ApiConsumes, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ProductService } from '@product/product.service';
 import { CreateProductDto } from '@product/dto/create-product.dto';
 import { UpdateProductDto } from '@product/dto/update-product.dto';
@@ -25,6 +21,8 @@ import { Role } from '@user/entities/role.enum';
 import { Product } from '@product/entities/product.entity';
 import { PageOptionsDto } from '@root/common/dto/page-options.dto';
 import { PageDto } from '@root/common/dto/page.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { BufferedFile } from '@minio-client/interface/file.model';
 
 @ApiTags('Product')
 @Controller('product')
@@ -49,7 +47,7 @@ export class ProductController {
 
   // product 신규 등록 api
   @Post('/new')
-  @UseGuards(RoleGuard(Role.ADMIN))
+  // @UseGuards(RoleGuard(Role.ADMIN))
   @ApiOperation({
     summary: '등록 API',
     description: `${Role.ADMIN}만 이용가능`,
@@ -68,17 +66,37 @@ export class ProductController {
 
   // product 수정 api
   @Put('/:id')
-  @UseGuards(RoleGuard(Role.ADMIN))
+  @UseInterceptors(FileInterceptor('img'))
+  // @UseGuards(RoleGuard(Role.ADMIN))
   @ApiOperation({
     summary: '수정 API',
     description: `${Role.ADMIN}만 이용가능`,
   })
   @ApiBody({ type: CreateProductDto })
+  @ApiBody({
+    description: 'test',
+    schema: {
+      type: 'object',
+      properties: {
+        img: {
+          type: 'string',
+          format: 'binary',
+          description: 'productImg',
+        },
+      },
+    },
+  })
+  @ApiConsumes('multipart/form-data')
   async updateProduct(
     @Param() { id }: ObjectWithIdDto,
-    @Body() updateProductDto: UpdateProductDto,
+    @Body() updateProductDto?: UpdateProductDto,
+    @UploadedFile() img?: BufferedFile,
   ) {
-    return await this.productService.updateProductById(id, updateProductDto);
+    return await this.productService.updateProductById(
+      id,
+      updateProductDto,
+      img,
+    );
   }
 
   // id에 해당되는 product 삭제 api
