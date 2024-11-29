@@ -76,7 +76,7 @@ export class UserController {
     @Req() req: RequestWithUserInterface,
     @Body() updateUserDto?: CreateUserDto,
     @UploadedFile() img?: BufferedFile,
-  ): Promise<any> {
+  ): Promise<string> {
     return await this.userService.updateUserInfoByToken(
       req.user,
       img,

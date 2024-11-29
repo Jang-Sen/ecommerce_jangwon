@@ -7,7 +7,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, UpdateResult } from 'typeorm';
+import { Repository } from 'typeorm';
 import { CreateUserDto } from '@user/dto/create-user.dto';
 import { User } from '@user/entities/user.entity';
 import { Provider } from '@user/entities/provider.enum';
@@ -158,16 +158,22 @@ export class UserService {
     user: User,
     img?: BufferedFile,
     updateUserDto?: CreateUserDto,
-  ): Promise<UpdateResult> {
+  ): Promise<string> {
     const profileImg = await this.minioClientService.uploadProfileImg(
       user,
       img,
       'profile',
     );
 
-    return await this.userRepository.update(user.id, {
+    const response = await this.userRepository.update(user.id, {
       ...updateUserDto,
       profileImg,
     });
+
+    if (!response.affected) {
+      throw new HttpException('Not Found User', HttpStatus.NO_CONTENT);
+    }
+
+    return 'success';
   }
 }

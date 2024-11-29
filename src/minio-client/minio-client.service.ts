@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, Logger } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { MinioClient, MinioService } from 'nestjs-minio-client';
 import { ConfigService } from '@nestjs/config';
 import { User } from '@user/entities/user.entity';
@@ -30,12 +30,18 @@ export class MinioClientService {
     baseBucket: string = this.baseBucket,
   ): Promise<string> {
     console.log('+++++++++++++++++++file = ' + file);
-    // if (!(file.mimetype.includes('jpg') || file.mimetype.includes('png'))) {
-    //   throw new HttpException(
-    //     'Error uploading file format',
-    //     HttpStatus.BAD_REQUEST,
-    //   );
-    // }
+    if (
+      !(
+        file.mimetype.includes('jpg') ||
+        file.mimetype.includes('png') ||
+        file.mimetype.includes('jpeg')
+      )
+    ) {
+      throw new HttpException(
+        'Error uploading file format',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
 
     const temp_filename = Date.now().toString();
     const hashedFileName = crypto
@@ -56,22 +62,58 @@ export class MinioClientService {
     // 카테고리를 포함한 파일 경로 구성
     // 파일 크기를 명시적으로 전달하고, 메타데이터를 올바른 위치에 추가
 
-    this.client.putObject(
-      baseBucket,
-      filePath,
-      fileBuffer,
-      fileBuffer.length,
-      metaData,
-      function (err) {
-        if (err) {
-          throw new BadRequestException('Error Upload Error: ' + err.message);
-        }
-      },
-    );
+    // 유저에 해당되는 폴더를 지우고
+    if (`${categoryName}/${user.id}`.includes(user.id)) {
+      // await this.delete(`${categoryName}/${member.id}`);
+      await this.deleteFolderContents(
+        this.baseBucket,
+        `${categoryName}/${user.id}/`,
+      );
+    }
+
+    await new Promise<void>((resolve, reject) => {
+      this.client.putObject(
+        baseBucket,
+        filePath,
+        fileBuffer,
+        fileBuffer.length,
+        metaData,
+        (err) => {
+          if (err) {
+            console.log('Error uploading file:', err.message);
+            return reject(
+              new HttpException('Error uploading file', HttpStatus.BAD_REQUEST),
+            );
+          }
+          resolve();
+        },
+      );
+    });
 
     console.log(
       `http://${this.configService.get('MINIO_ENDPOINT')}:${this.configService.get('MINIO_PORT')}/${this.configService.get('MINIO_BUCKET')}/${filePath}`,
     );
     return `http://${this.configService.get('MINIO_ENDPOINT')}:${this.configService.get('MINIO_PORT')}/${this.configService.get('MINIO_BUCKET')}/${filePath}`;
+  }
+
+  //
+  async deleteFolderContents(bucketName: string, folderPath: string) {
+    const objectList = [];
+    const stream = this.client.listObjects(bucketName, folderPath, true);
+
+    for await (const obj of stream) {
+      objectList.push(obj.name);
+    }
+
+    if (objectList.length > 0) {
+      const deleteResult = await this.client.removeObjects(
+        bucketName,
+        objectList,
+      );
+
+      console.log('Delete Success: ' + deleteResult);
+    }
+
+    console.log('No Objects: ');
   }
 }
