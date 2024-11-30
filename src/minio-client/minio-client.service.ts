@@ -24,63 +24,73 @@ export class MinioClientService {
   }
 
   // 제품 이미지 파일 업로드하는 로직
-  public async uploadProductImg(
+  public async uploadProductImgs(
     product: Product,
-    file: BufferedFile,
+    files: BufferedFile[],
     categoryName: string,
     baseBucket: string = this.baseBucket,
-  ): Promise<string> {
-    if (
-      !(
-        file.mimetype.includes('png') ||
-        file.mimetype.includes('jpg') ||
-        file.mimetype.includes('jpeg')
-      )
-    ) {
-      throw new HttpException('Error Upload File.', HttpStatus.BAD_REQUEST);
-    }
+  ): Promise<string[]> {
+    const uploadedUrls: string[] = [];
 
-    const temp_fileName = Date.now().toString();
-    const hashedFileName = crypto
-      .createHash('md5')
-      .update(temp_fileName)
-      .digest('hex');
-    const ext = file.originalname.substring(
-      file.originalname.lastIndexOf('.'),
-      file.originalname.length,
-    );
-    const metaData = {
-      'Content-Type': file.mimetype,
-      'X-Amz-Meta-Testing': 1234,
-    };
-
-    const fileName = hashedFileName + ext;
-    const fileBuffer = file.buffer;
-    const filePath = `${categoryName}/${product.id}/${fileName}`;
-
-    await new Promise<void>((resolve, reject) => {
-      this.client.putObject(
-        baseBucket,
-        filePath,
-        fileBuffer,
-        fileBuffer.length,
-        metaData,
-        (err) => {
-          if (err) {
-            console.log('Error uploading file:', err.message);
-            return reject(
-              new HttpException('Error uploading file', HttpStatus.BAD_REQUEST),
-            );
-          }
-          resolve();
-        },
+    for (const file of files) {
+      if (
+        !(
+          file.mimetype.includes('png') ||
+          file.mimetype.includes('jpg') ||
+          file.mimetype.includes('jpeg')
+        )
+      ) {
+        throw new HttpException('Error Upload File.', HttpStatus.BAD_REQUEST);
+      }
+      const temp_fileName = Date.now().toString();
+      const hashedFileName = crypto
+        .createHash('md5')
+        .update(temp_fileName)
+        .digest('hex');
+      const ext = file.originalname.substring(
+        file.originalname.lastIndexOf('.'),
+        file.originalname.length,
       );
-    });
+      const metaData = {
+        'Content-Type': file.mimetype,
+        'X-Amz-Meta-Testing': 1234,
+      };
+
+      const fileName = hashedFileName + ext;
+      const fileBuffer = file.buffer;
+      const filePath = `${categoryName}/${product.id}/${fileName}`;
+
+      await new Promise<void>((resolve, reject) => {
+        this.client.putObject(
+          baseBucket,
+          filePath,
+          fileBuffer,
+          fileBuffer.length,
+          metaData,
+          (err) => {
+            if (err) {
+              console.log('Error uploading file:', err.message);
+              return reject(
+                new HttpException(
+                  'Error uploading file',
+                  HttpStatus.BAD_REQUEST,
+                ),
+              );
+            }
+            resolve();
+          },
+        );
+      });
+
+      uploadedUrls.push(
+        `http://${this.configService.get('MINIO_ENDPOINT')}:${this.configService.get('MINIO_PORT')}/${this.configService.get('MINIO_BUCKET')}/${filePath}`,
+      );
+    }
 
     // console.log(
     //   `http://${this.configService.get('MINIO_ENDPOINT')}:${this.configService.get('MINIO_PORT')}/${this.configService.get('MINIO_BUCKET')}/${filePath}`,
     // );
-    return `http://${this.configService.get('MINIO_ENDPOINT')}:${this.configService.get('MINIO_PORT')}/${this.configService.get('MINIO_BUCKET')}/${filePath}`;
+    return uploadedUrls;
   }
 
   // 프로필 이미지 파일 업로드하는 로직

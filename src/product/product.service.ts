@@ -79,17 +79,20 @@ export class ProductService {
   async updateProductById(
     productId: string,
     dto?: UpdateProductDto,
-    img?: BufferedFile,
+    imgs?: BufferedFile[],
   ) {
     const product = await this.getProductById(productId);
-    const updateProductImg = await this.minioClientService.uploadProductImg(
-      product,
-      img,
-      'product',
-    );
+    const newProductUrlImgs = imgs?.length
+      ? await this.minioClientService.uploadProductImgs(
+          product,
+          imgs,
+          'product',
+        )
+      : [];
+
     const updateProduct = await this.productRepository.update(product.id, {
       ...dto,
-      productImg: updateProductImg,
+      productImg: newProductUrlImgs,
     });
 
     if (!updateProduct) {

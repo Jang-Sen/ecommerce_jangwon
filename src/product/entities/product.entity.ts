@@ -15,6 +15,10 @@ export class Product extends Base {
   @Column()
   public category: string;
 
-  @Column()
-  public productImg: string;
+  @Column({
+    type: 'text',
+    array: true,
+    nullable: true,
+  })
+  public productImg?: string[];
 }

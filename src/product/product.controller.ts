@@ -7,7 +7,7 @@ import {
   Post,
   Put,
   Query,
-  UploadedFile,
+  UploadedFiles,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
@@ -21,8 +21,8 @@ import { Role } from '@user/entities/role.enum';
 import { Product } from '@product/entities/product.entity';
 import { PageOptionsDto } from '@root/common/dto/page-options.dto';
 import { PageDto } from '@root/common/dto/page.dto';
-import { FileInterceptor } from '@nestjs/platform-express';
 import { BufferedFile } from '@minio-client/interface/file.model';
+import { FilesInterceptor } from '@nestjs/platform-express';
 
 @ApiTags('Product')
 @Controller('product')
@@ -66,7 +66,7 @@ export class ProductController {
 
   // product 수정 api
   @Put('/:id')
-  @UseInterceptors(FileInterceptor('img'))
+  @UseInterceptors(FilesInterceptor('imgs'))
   // @UseGuards(RoleGuard(Role.ADMIN))
   @ApiOperation({
     summary: '수정 API',
@@ -74,28 +74,47 @@ export class ProductController {
   })
   @ApiBody({ type: CreateProductDto })
   @ApiBody({
-    description: 'test',
+    description: 'A single image file with additional member data',
     schema: {
       type: 'object',
       properties: {
-        img: {
-          type: 'string',
-          format: 'binary',
-          description: 'productImg',
+        imgs: {
+          type: 'array',
+          items: {
+            type: 'string',
+            format: 'binary',
+            description: 'Product images file',
+          },
         },
       },
     },
   })
+  // @ApiBody({
+  //   description: 'test',
+  //   schema: {
+  //     type: 'object',
+  //     properties: {
+  //       imgs: {
+  //         type: 'array',
+  //         items: {
+  //           type: 'string',
+  //           format: 'binary',
+  //           description: 'productImgs',
+  //         },
+  //       },
+  //     },
+  //   },
+  // })
   @ApiConsumes('multipart/form-data')
   async updateProduct(
     @Param() { id }: ObjectWithIdDto,
     @Body() updateProductDto?: UpdateProductDto,
-    @UploadedFile() img?: BufferedFile,
+    @UploadedFiles() imgs?: BufferedFile[],
   ) {
     return await this.productService.updateProductById(
       id,
       updateProductDto,
-      img,
+      imgs,
     );
   }
 

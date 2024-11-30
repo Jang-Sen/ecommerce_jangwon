@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import { IsArray, IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
 export class CreateProductDto {
   @IsString()
@@ -21,9 +21,12 @@ export class CreateProductDto {
   @ApiProperty({ example: 'Mobile' })
   category: string;
 
+  @IsArray()
+  @IsString({ each: true })
   @ApiProperty({
-    example:
+    example: [
       'https://s.gravatar.com/avatar/f5eb4ce92bbb475a8d07b90174067027?s=200&r=pg&d=mm',
+    ],
   })
-  productImg: string;
+  productImg?: string[];
 }
