@@ -5,6 +5,7 @@ import { User } from '@user/entities/user.entity';
 import { BufferedFile } from '@minio-client/interface/file.model';
 import * as crypto from 'crypto';
 import { Product } from '@product/entities/product.entity';
+import { Notice } from '@notice/entities/notice.entity';
 
 @Injectable()
 export class MinioClientService {
@@ -23,6 +24,84 @@ export class MinioClientService {
     this.baseBucket = this.configService.get('MINIO_BUCKET');
   }
 
+  // 공지사항 파일 업로드
+  public async uploadNoticeFiles(
+    notice: Notice,
+    files: BufferedFile[],
+    categoryName: string,
+    baseBucket: string = this.baseBucket,
+  ): Promise<string[]> {
+    const uploadedUrls: string[] = [];
+
+    // 기존에 있던 폴더 지우고
+    if (`${categoryName}/${notice.id}`.includes(notice.id)) {
+      // await this.delete(`${categoryName}/${member.id}`);
+      await this.deleteFolderContents(
+        this.baseBucket,
+        `${categoryName}/${notice.id}/`,
+      );
+    }
+
+    for (const file of files) {
+      if (
+        !(
+          file.mimetype.includes('png') ||
+          file.mimetype.includes('jpg') ||
+          file.mimetype.includes('jpeg') ||
+          file.mimetype.includes('pdf')
+        )
+      ) {
+        throw new HttpException('Error Upload File!', HttpStatus.BAD_REQUEST);
+      }
+
+      const temp_fileName = Date.now().toString();
+      const hashedFileName = crypto
+        .createHash('md5')
+        .update(temp_fileName)
+        .digest('hex');
+      const ext = file.originalname.substring(
+        file.originalname.lastIndexOf('.'),
+        file.originalname.length,
+      );
+      const metaData = {
+        'Content-Type': file.mimetype,
+        'X-Amz-Meta-Testing': 1234,
+      };
+
+      const fileName = hashedFileName + ext;
+      const fileBuffer = file.buffer;
+      const filePath = `${categoryName}/${notice.id}/${fileName}`;
+
+      await new Promise<void>((resolve, reject) => {
+        this.client.putObject(
+          baseBucket,
+          filePath,
+          fileBuffer,
+          fileBuffer.length,
+          metaData,
+          (err) => {
+            if (err) {
+              console.log('Error uploading file:', err.message);
+              return reject(
+                new HttpException(
+                  'Error Uploading File',
+                  HttpStatus.BAD_REQUEST,
+                ),
+              );
+            }
+            resolve();
+          },
+        );
+      });
+
+      uploadedUrls.push(
+        `http://${this.configService.get('MINIO_ENDPOINT')}:${this.configService.get('MINIO_PORT')}/${this.configService.get('MINIO_BUCKET')}/${filePath}`,
+      );
+    }
+
+    return uploadedUrls;
+  }
+
   // 제품 이미지 파일 업로드하는 로직
   public async uploadProductImgs(
     product: Product,
@@ -31,6 +110,15 @@ export class MinioClientService {
     baseBucket: string = this.baseBucket,
   ): Promise<string[]> {
     const uploadedUrls: string[] = [];
+
+    // 해당되는 폴더를 지우고
+    if (`${categoryName}/${product.id}`.includes(product.id)) {
+      // await this.delete(`${categoryName}/${member.id}`);
+      await this.deleteFolderContents(
+        this.baseBucket,
+        `${categoryName}/${product.id}/`,
+      );
+    }
 
     for (const file of files) {
       if (

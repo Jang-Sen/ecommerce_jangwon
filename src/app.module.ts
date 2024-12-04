@@ -11,6 +11,7 @@ import { DatabaseModule } from '@database/database.module';
 import { AgreeOfTermModule } from './agree-of-term/agree-of-term.module';
 import { MinioClientModule } from '@minio-client/minio-client.module';
 import { RedisModule } from '@redis/redis.module';
+import { NoticeModule } from '@notice/notice.module';
 
 @Module({
   imports: [
@@ -70,6 +71,7 @@ import { RedisModule } from '@redis/redis.module';
     RedisModule,
     AgreeOfTermModule,
     MinioClientModule,
+    NoticeModule,
   ],
   controllers: [AppController],
   providers: [AppService],
