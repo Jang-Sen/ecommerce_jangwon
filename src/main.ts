@@ -1,7 +1,11 @@
 import { NestFactory, Reflector } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { ClassSerializerInterceptor, ValidationPipe } from '@nestjs/common';
+import {
+  ClassSerializerInterceptor,
+  ValidationPipe,
+  VersioningType,
+} from '@nestjs/common';
 import { TransformInterceptor } from '@root/common/interceptors/transform.interceptor';
 import * as cookieParser from 'cookie-parser';
 import { ConfigService } from '@nestjs/config';
@@ -12,6 +16,11 @@ async function bootstrap() {
   const configService: ConfigService = app.get(ConfigService);
 
   app.setGlobalPrefix('api'); // url에 api추가
+  app.enableVersioning({
+    type: VersioningType.URI,
+    defaultVersion: '1',
+  });
+
   app.enableCors(); // 허용된 ip 만 접속 가능하도록 설정
   app.use(cookieParser());
 

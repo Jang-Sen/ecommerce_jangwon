@@ -24,6 +24,30 @@ export class MinioClientService {
     this.baseBucket = this.configService.get('MINIO_BUCKET');
   }
 
+  // 파일 타입 검증
+  validateFileType(file: BufferedFile, allowedType: string[]) {
+    if (!allowedType.some((type) => file.mimetype.includes(type))) {
+      throw new HttpException('Invalid File Type', HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  // 파일 이름
+  generateFileName(originalName: string): string {
+    const temp_fileName = Date.now().toString();
+    const hashedFileName = crypto
+      .createHash('md5')
+      .update(temp_fileName)
+      .digest('hex');
+    const ext = originalName.substring(
+      originalName.lastIndexOf('.'),
+      originalName.length,
+    );
+
+    return `${hashedFileName}${ext}`;
+  }
+
+  async uploadFile(bucket: string) {}
+
   // 공지사항 파일 업로드
   public async uploadNoticeFiles(
     notice: Notice,

@@ -1,13 +1,13 @@
 import {
   Body,
   Controller,
-  Post,
-  UseGuards,
-  Req,
   Get,
-  HttpStatus,
   HttpCode,
+  HttpStatus,
+  Post,
+  Req,
   Res,
+  UseGuards,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { AuthService } from '@auth/auth.service';
@@ -24,6 +24,7 @@ import { ChangePasswordDto } from '@user/dto/change-password.dto';
 import { UserService } from '@user/user.service';
 import { RefreshTokenGuard } from '@auth/guards/refreshToken.guard';
 import { Response } from 'express';
+import { Throttle, ThrottlerGuard } from '@nestjs/throttler';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -53,6 +54,7 @@ export class AuthController {
   //   return { user, token: accessToken };
   // }
 
+  // @Version('2')
   @Post('/login')
   @HttpCode(HttpStatus.OK)
   @UseGuards(LocalAuthGuard)
@@ -99,6 +101,13 @@ export class AuthController {
   // 로그인 이후 토큰을 기반한 유저정보를 가져오는 API
   @Get()
   @UseGuards(AccessTokenGuard)
+  @UseGuards(ThrottlerGuard)
+  @Throttle({
+    default: {
+      limit: 3, // 3번까지 허용
+      ttl: 60000, // 1분 동안
+    },
+  })
   @ApiBearerAuth()
   @ApiOperation({
     summary: '개인 정보 API',
