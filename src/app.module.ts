@@ -12,6 +12,8 @@ import { AgreeOfTermModule } from './agree-of-term/agree-of-term.module';
 import { MinioClientModule } from '@minio-client/minio-client.module';
 import { RedisModule } from '@redis/redis.module';
 import { NoticeModule } from '@notice/notice.module';
+import { MovieModule } from './movie/movie.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
@@ -72,6 +74,8 @@ import { NoticeModule } from '@notice/notice.module';
     AgreeOfTermModule,
     MinioClientModule,
     NoticeModule,
+    MovieModule,
+    ScheduleModule.forRoot(),
   ],
   controllers: [AppController],
   providers: [AppService],
