@@ -25,6 +25,7 @@ import { UserService } from '@user/user.service';
 import { RefreshTokenGuard } from '@auth/guards/refreshToken.guard';
 import { Response } from 'express';
 import { Throttle, ThrottlerGuard } from '@nestjs/throttler';
+import { EmailValificationDto } from '@user/dto/email-valification.dto';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -208,8 +209,19 @@ export class AuthController {
   // 이메일 확인용
   @Post('/email/send')
   @ApiOperation({ summary: '이메일 확인용 API' })
-  async initEmailAddressVerification(@Body('email') email: string) {
-    return await this.authService.sendEmailVerification(email);
+  async initEmailAddressVerification(
+    @Body() emailDto: EmailDto,
+  ): Promise<boolean> {
+    return await this.authService.sendEmailVerification(emailDto.email);
+  }
+
+  // 랜덤번호 확인
+  @Post('/email/check')
+  async checkEmailAndRedis(
+    @Body() emailValificationDto: EmailValificationDto,
+  ): Promise<boolean> {
+    const { email, code } = emailValificationDto;
+    return await this.authService.validateEmailNumber(email, code);
   }
 
   // 비밀번호 찾는 메일 보내기

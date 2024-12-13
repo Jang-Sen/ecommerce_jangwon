@@ -119,17 +119,36 @@ export class AuthService {
   }
 
   // 이메일 인증 보내는 함수
-  async sendEmailVerification(email: string) {
+  async sendEmailVerification(email: string): Promise<boolean> {
     const genarateNum = this.generateOTP();
 
     // cache에 저장
     await this.cacheManager.set(email, genarateNum);
 
-    return await this.emailService.sendMail({
+    const result = await this.emailService.sendMail({
       to: email,
       subject: 'jangwon service - verification email address',
       text: `Plz random number ${genarateNum}`,
     });
+
+    if (result.accepted.length === 0) {
+      throw new HttpException('Fail Send Email.', HttpStatus.BAD_REQUEST);
+    }
+
+    return true;
+  }
+
+  // 이메일 랜덤번호 확인 함수
+  async validateEmailNumber(email: string, code: string): Promise<boolean> {
+    const codeFromRedis = await this.cacheManager.get(email);
+
+    if (codeFromRedis !== code) {
+      throw new HttpException('Do Not Same Code.', HttpStatus.BAD_REQUEST);
+    }
+
+    await this.cacheManager.del(email);
+
+    return true;
   }
 
   // 이메일로 비밀번호 찾기
