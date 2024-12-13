@@ -8,12 +8,12 @@ import { AppController } from '@root/app.controller';
 import { AppService } from '@root/app.service';
 import { EmailModule } from '@email/email.module';
 import { DatabaseModule } from '@database/database.module';
-import { AgreeOfTermModule } from './agree-of-term/agree-of-term.module';
 import { MinioClientModule } from '@minio-client/minio-client.module';
 import { RedisModule } from '@redis/redis.module';
 import { NoticeModule } from '@notice/notice.module';
-import { MovieModule } from './movie/movie.module';
 import { ScheduleModule } from '@nestjs/schedule';
+import { AgreeOfTermModule } from '@root/agreeOfTerm/agree-of-term.module';
+import { CommentModule } from './comment/comment.module';
 
 @Module({
   imports: [
@@ -74,8 +74,8 @@ import { ScheduleModule } from '@nestjs/schedule';
     AgreeOfTermModule,
     MinioClientModule,
     NoticeModule,
-    MovieModule,
     ScheduleModule.forRoot(),
+    CommentModule,
   ],
   controllers: [AppController],
   providers: [AppService],

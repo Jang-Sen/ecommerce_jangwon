@@ -36,6 +36,7 @@ export class ProductService {
     // }
 
     queryBuilder
+      .leftJoin('product.comments', 'comments')
       .orderBy(`product.${pageOptionsDto.sort}`, pageOptionsDto.order)
       .skip(pageOptionsDto.skip)
       .take(pageOptionsDto.take);

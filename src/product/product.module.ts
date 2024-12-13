@@ -9,5 +9,6 @@ import { MinioClientModule } from '@minio-client/minio-client.module';
   imports: [TypeOrmModule.forFeature([Product]), MinioClientModule],
   controllers: [ProductController],
   providers: [ProductService],
+  exports: [ProductService],
 })
 export class ProductModule {}

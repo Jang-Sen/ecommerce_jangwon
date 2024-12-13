@@ -5,8 +5,8 @@
       "@root/*": [
         "./src/*"
       ],
-      "@agree-of-term": [
-        "./src/agree-of-term/*"
+      "@agreeOfTerm": [
+        "./src/agreeOfTerm/*"
       ],
       "@auth/*": [
         "./src/auth/*"

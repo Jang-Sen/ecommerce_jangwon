@@ -1,5 +1,6 @@
-import { Column, Entity } from 'typeorm';
+import { Column, Entity, JoinColumn, OneToMany } from 'typeorm';
 import { Base } from '@common/entities/base.entity';
+import { Comment } from '@root/comment/entities/comment.entity';
 
 @Entity()
 export class Product extends Base {
@@ -21,4 +22,8 @@ export class Product extends Base {
     nullable: true,
   })
   public productImg?: string[];
+
+  @OneToMany(() => Comment, (comment: Comment) => comment.product)
+  @JoinColumn()
+  public comments: Comment[];
 }

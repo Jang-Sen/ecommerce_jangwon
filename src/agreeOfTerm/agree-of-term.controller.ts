@@ -1,10 +1,10 @@
 import { Body, Controller, Post, Put, Req, UseGuards } from '@nestjs/common';
 import { AgreeOfTermService } from './agree-of-term.service';
-import { CreateAgreeOfTermDto } from '@root/agree-of-term/dto/create-agree-of-term.dto';
+import { CreateAgreeOfTermDto } from '@root/agreeOfTerm/dto/create-agree-of-term.dto';
 import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { AccessTokenGuard } from '@auth/guards/accessToken.guard';
 import { RequestWithUserInterface } from '@auth/interfaces/requestWithUser.interface';
-import { UpdateAgreeOfTermDto } from '@root/agree-of-term/dto/update-agree-of-term.dto';
+import { UpdateAgreeOfTermDto } from '@root/agreeOfTerm/dto/update-agree-of-term.dto';
 
 @ApiTags('terms')
 @Controller('terms')

@@ -1,15 +1,10 @@
-import {
-  BadRequestException,
-  HttpStatus,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { AgreeOfTerm } from '@root/agree-of-term/entities/agree-of-term.entity';
+import { AgreeOfTerm } from '@root/agreeOfTerm/entities/agree-of-term.entity';
 import { Repository, UpdateResult } from 'typeorm';
-import { CreateAgreeOfTermDto } from '@root/agree-of-term/dto/create-agree-of-term.dto';
+import { CreateAgreeOfTermDto } from '@root/agreeOfTerm/dto/create-agree-of-term.dto';
 import { User } from '@user/entities/user.entity';
-import { UpdateAgreeOfTermDto } from '@root/agree-of-term/dto/update-agree-of-term.dto';
+import { UpdateAgreeOfTermDto } from '@root/agreeOfTerm/dto/update-agree-of-term.dto';
 
 @Injectable()
 export class AgreeOfTermService {

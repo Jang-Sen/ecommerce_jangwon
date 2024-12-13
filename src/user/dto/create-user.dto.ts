@@ -8,8 +8,8 @@ import {
   MinLength,
 } from 'class-validator';
 import { Provider } from '@user/entities/provider.enum';
-import { CreateAgreeOfTermDto } from '@root/agree-of-term/dto/create-agree-of-term.dto';
-import { AgreeOfTerm } from '@root/agree-of-term/entities/agree-of-term.entity';
+import { CreateAgreeOfTermDto } from '@root/agreeOfTerm/dto/create-agree-of-term.dto';
+import { AgreeOfTerm } from '@root/agreeOfTerm/entities/agree-of-term.entity';
 
 export class CreateUserDto {
   @IsString()

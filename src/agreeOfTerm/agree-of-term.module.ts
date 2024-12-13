@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
-import { AgreeOfTermService } from './agree-of-term.service';
-import { AgreeOfTermController } from './agree-of-term.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { AgreeOfTerm } from '@root/agree-of-term/entities/agree-of-term.entity';
+import { AgreeOfTerm } from '@root/agreeOfTerm/entities/agree-of-term.entity';
+import { AgreeOfTermController } from '@root/agreeOfTerm/agree-of-term.controller';
+import { AgreeOfTermService } from '@root/agreeOfTerm/agree-of-term.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([AgreeOfTerm])],
