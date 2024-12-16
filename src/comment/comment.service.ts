@@ -33,10 +33,18 @@ export class CommentService {
   }
 
   // 조회
-  async findCommentsByProductId(productId: string) {
+  async findCommentsByProductId(productId: string): Promise<Comment[]> {
     const product = await this.productRepository.getProductById(productId);
 
-    return await this.repository.findBy({ product });
+    const comments = await this.repository.find({
+      where: {
+        product: {
+          id: product.id,
+        },
+      },
+      relations: ['user', 'product'],
+    });
+    return comments;
   }
 
   // 삭제
