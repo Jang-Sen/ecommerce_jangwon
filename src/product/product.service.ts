@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateProductDto } from '@product/dto/create-product.dto';
@@ -9,6 +9,8 @@ import { PageOptionsDto } from '@root/common/dto/page-options.dto';
 import { PageMetaDto } from '@root/common/dto/page-meta.dto';
 import { MinioClientService } from '@minio-client/minio-client.service';
 import { BufferedFile } from '@minio-client/interface/file.model';
+import { CACHE_MANAGER } from '@nestjs/common/cache';
+import { Cache } from 'cache-manager';
 
 @Injectable()
 export class ProductService {
@@ -16,12 +18,15 @@ export class ProductService {
     @InjectRepository(Product)
     private productRepository: Repository<Product>,
     private readonly minioClientService: MinioClientService,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}
 
   async getAllProducts(
     pageOptionsDto: PageOptionsDto,
   ): Promise<PageDto<Product>> {
     // return await this.productRepository.find();
+    const cacheProduct = await this.cacheManager.get('products');
+
     const queryBuilder = this.productRepository.createQueryBuilder('product');
 
     if (pageOptionsDto.keyword) {
@@ -46,7 +51,14 @@ export class ProductService {
 
     const pageMetaDto = new PageMetaDto({ itemCount, pageOptionsDto });
 
-    return new PageDto(entities, pageMetaDto);
+    if (cacheProduct) {
+      console.log('Redis');
+      return new PageDto(cacheProduct, pageMetaDto);
+    } else {
+      console.log('Postgres');
+      await this.cacheManager.set('products', entities);
+      return new PageDto(entities, pageMetaDto);
+    }
   }
 
   async getProductById(productId: string) {
@@ -61,6 +73,8 @@ export class ProductService {
   async createProduct(createProductDto: CreateProductDto) {
     const newProduct = await this.productRepository.create(createProductDto);
     await this.productRepository.save(newProduct);
+
+    await this.cacheManager.del('products');
 
     return newProduct;
   }
