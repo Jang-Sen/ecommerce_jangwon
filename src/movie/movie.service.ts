@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { HttpService } from '@nestjs/axios';
 import { Movie } from '@movie/entities/movie.entity';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class MovieService {
@@ -10,18 +11,23 @@ export class MovieService {
     @InjectRepository(Movie)
     private readonly repository: Repository<Movie>,
     private readonly httpService: HttpService,
+    private readonly configService: ConfigService,
   ) {}
 
   // 등록
   // @Cron('* * * * * *')
-  async createMovie(): Promise<Movie[]> {
-    const tmdbUrl =
-      'https://api.themoviedb.org/3/movie/now_playing?language=en-US&page=1';
+  async createMovie(
+    resource: string,
+    language?: string,
+    page?: number,
+  ): Promise<Movie[]> {
+    const url = this.configService.get('MOVIE_URL');
+    const movieToken = this.configService.get('MOVIE_TOKEN');
+
+    const tmdbUrl = url + `${resource}?language=${language}&page=${page}`;
     const config = {
       headers: {
-        Authorization:
-          'Bearer ' +
-          'eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI2NGViZDk0ZmRhMzJlYzQyNzBhNmZmNmFmNjVmMjhhNyIsIm5iZiI6MTczNDMyMTI0OC42NDUsInN1YiI6IjY3NWZhNDYwZDZmNWU4NDU4YjhiNTIyZCIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.gUmfYe6Z_3BgLytSw5hCaTBw1CXKG6tRvB9rLTVQVWk',
+        Authorization: `Bearer ${movieToken}`,
       },
     };
 
@@ -36,7 +42,7 @@ export class MovieService {
       datas?.map((data) =>
         movieDatas.push({
           adult: data['adult'],
-          backdrop_path: data['backdrop_path'],
+          poster_path: 'https://image.tmdb.org/t/p/w500' + data['poster_path'],
           genre_ids: data['genre_ids'],
           mid: data['id'],
           original_language: data['original_language'],

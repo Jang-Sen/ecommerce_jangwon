@@ -64,6 +64,9 @@ import { MovieModule } from '@movie/movie.module';
         MINIO_ACCESS_KEY: Joi.string().required(),
         MINIO_SECRET_KEY: Joi.string().required(),
         MINIO_BUCKET: Joi.string().required(),
+
+        MOVIE_URL: Joi.string().required(),
+        MOVIE_TOKEN: Joi.string().required(),
       }),
     }),
     DatabaseModule,

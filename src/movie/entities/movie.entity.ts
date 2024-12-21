@@ -1,29 +1,33 @@
-import { Column, Entity } from 'typeorm';
+import { Column, Entity, OneToMany } from 'typeorm';
 import { Base } from '@common/entities/base.entity';
+import { Comment } from '@root/comment/entities/comment.entity';
 
 @Entity()
 export class Movie extends Base {
   @Column()
-  adult: boolean;
+  public adult: boolean;
 
   @Column()
-  backdrop_path: string;
+  public poster_path: string;
 
   @Column({ type: 'simple-array' })
-  genre_ids: number[];
+  public genre_ids: number[];
 
   @Column()
-  mid: number;
+  public mid: number;
 
   @Column()
-  original_language: string;
+  public original_language: string;
 
   @Column()
-  original_title: string;
+  public original_title: string;
 
   @Column()
-  overview: string;
+  public overview: string;
 
   @Column('decimal', { precision: 10, scale: 2 })
-  popularity: number;
+  public popularity: number;
+
+  @OneToMany(() => Comment, (comment) => comment.movie)
+  public comments: Comment[];
 }
