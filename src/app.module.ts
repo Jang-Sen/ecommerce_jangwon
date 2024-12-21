@@ -14,6 +14,7 @@ import { NoticeModule } from '@notice/notice.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { AgreeOfTermModule } from '@root/agreeOfTerm/agree-of-term.module';
 import { CommentModule } from './comment/comment.module';
+import { MovieModule } from '@movie/movie.module';
 
 @Module({
   imports: [
@@ -76,6 +77,7 @@ import { CommentModule } from './comment/comment.module';
     NoticeModule,
     ScheduleModule.forRoot(),
     CommentModule,
+    MovieModule,
   ],
   controllers: [AppController],
   providers: [AppService],
