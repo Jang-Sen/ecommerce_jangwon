@@ -15,7 +15,7 @@ async function bootstrap() {
 
   const configService: ConfigService = app.get(ConfigService);
 
-  app.setGlobalPrefix('api'); // url에 api추가
+  // app.setGlobalPrefix('api'); // url에 api추가
   app.enableVersioning({
     type: VersioningType.URI,
     defaultVersion: '1',
