@@ -25,7 +25,7 @@ export class ProductService {
     pageOptionsDto: PageOptionsDto,
   ): Promise<PageDto<Product>> {
     // return await this.productRepository.find();
-    const cacheProduct = await this.cacheManager.get('products');
+    const cacheProduct: any = await this.cacheManager.get('products');
 
     const queryBuilder = this.productRepository.createQueryBuilder('product');
 

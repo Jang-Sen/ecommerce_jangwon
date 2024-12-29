@@ -15,7 +15,7 @@ export class MovieService {
   ) {}
 
   // 등록
-  // @Cron('* * * * * *')
+  // @Cron('0 0 12 1 * ?')
   async createMovie(
     resource: string,
     language?: string,

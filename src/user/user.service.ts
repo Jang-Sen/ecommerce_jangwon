@@ -139,7 +139,7 @@ export class UserService {
   // refreshToken 검증 로직
   async getUserIfRefreshTokenMatches(refreshToken: string, userId: string) {
     const user = await this.getUserBy('id', userId);
-    const getUserIdFromRedis = await this.cacheManager.get(user.id);
+    const getUserIdFromRedis: any = await this.cacheManager.get(user.id);
     console.log(getUserIdFromRedis);
     const isRefreshTokenMatched = await bcrypt.compare(
       refreshToken,
