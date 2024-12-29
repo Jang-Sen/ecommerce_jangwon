@@ -42,6 +42,7 @@ async function bootstrap() {
     .setDescription('ecommerce_jangwon_api description')
     .addBearerAuth()
     .setVersion('1.0')
+    .addServer('/api')
     .addTag('ecommerce')
     .build();
 
