@@ -47,12 +47,48 @@ export class ProductController {
 
   // product 신규 등록 api
   @Post('/new')
-  // @UseGuards(RoleGuard(Role.ADMIN))
+  @UseInterceptors(FilesInterceptor('imgs'))
+  @UseGuards(RoleGuard(Role.ADMIN))
   @ApiOperation({
     summary: '등록 API',
     description: `${Role.ADMIN}만 이용가능`,
   })
-  @ApiBody({ type: CreateProductDto })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        name: {
+          type: 'string',
+          example: 'iPhone 16 Pro',
+          description: '제품 이름',
+        },
+        description: {
+          type: 'string',
+          example: '궁극의 iPhone.',
+          description: '제품 설명',
+        },
+        price: {
+          type: 'number',
+          example: 1550000,
+          description: '제품 가격',
+        },
+        category: {
+          type: 'string',
+          example: 'Mobile',
+          description: '제품 분류',
+        },
+        imgs: {
+          type: 'array',
+          description: '제품 사진',
+          items: {
+            type: 'string',
+            format: 'binary',
+          },
+        },
+      },
+    },
+  })
+  @ApiConsumes('multipart/form-data')
   async createProduct(
     // @Body('name') name: string,
     // @Body('description') description: string,
@@ -60,51 +96,54 @@ export class ProductController {
     // @Body('category') category: string,
     // @Body('productImg') productImg: string,
     @Body() createProductDto: CreateProductDto,
+    @UploadedFiles() imgs: BufferedFile[],
   ): Promise<Product> {
-    return await this.productService.createProduct(createProductDto);
+    return await this.productService.createProduct(createProductDto, imgs);
   }
 
   // product 수정 api
   @Put('/:id')
   @UseInterceptors(FilesInterceptor('imgs'))
-  // @UseGuards(RoleGuard(Role.ADMIN))
+  @UseGuards(RoleGuard(Role.ADMIN))
   @ApiOperation({
     summary: '수정 API',
     description: `${Role.ADMIN}만 이용가능`,
   })
-  @ApiBody({ type: CreateProductDto })
   @ApiBody({
-    description: 'A single image file with additional member data',
     schema: {
       type: 'object',
       properties: {
+        name: {
+          type: 'string',
+          example: 'iPhone 16 Pro',
+          description: '제품 이름',
+        },
+        description: {
+          type: 'string',
+          example: '궁극의 iPhone.',
+          description: '제품 설명',
+        },
+        price: {
+          type: 'number',
+          example: 1550000,
+          description: '제품 가격',
+        },
+        category: {
+          type: 'string',
+          example: 'Mobile',
+          description: '제품 분류',
+        },
         imgs: {
           type: 'array',
+          description: '제품 사진',
           items: {
             type: 'string',
             format: 'binary',
-            description: 'Product images file',
           },
         },
       },
     },
   })
-  // @ApiBody({
-  //   description: 'test',
-  //   schema: {
-  //     type: 'object',
-  //     properties: {
-  //       imgs: {
-  //         type: 'array',
-  //         items: {
-  //           type: 'string',
-  //           format: 'binary',
-  //           description: 'productImgs',
-  //         },
-  //       },
-  //     },
-  //   },
-  // })
   @ApiConsumes('multipart/form-data')
   async updateProduct(
     @Param() { id }: ObjectWithIdDto,

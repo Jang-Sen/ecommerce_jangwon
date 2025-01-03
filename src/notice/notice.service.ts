@@ -52,9 +52,20 @@ export class NoticeService {
   }
 
   // 생성
-  async createNotice(createNoticeDto: CreateNoticeDto) {
+  async createNotice(createNoticeDto: CreateNoticeDto, files: BufferedFile[]) {
     const newNotice = this.repository.create(createNoticeDto);
-    await this.repository.save(newNotice);
+
+    const savedNotice = await this.repository.save(newNotice);
+
+    if (files?.length) {
+      savedNotice.noticeFiles = await this.minioClientService.uploadNoticeFiles(
+        savedNotice,
+        files,
+        'notice',
+      );
+    }
+
+    await this.repository.save(savedNotice);
 
     return newNotice;
   }

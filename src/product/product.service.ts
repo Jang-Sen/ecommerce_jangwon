@@ -70,9 +70,23 @@ export class ProductService {
     return product;
   }
 
-  async createProduct(createProductDto: CreateProductDto) {
-    const newProduct = await this.productRepository.create(createProductDto);
-    await this.productRepository.save(newProduct);
+  async createProduct(
+    createProductDto: CreateProductDto,
+    imgs: BufferedFile[],
+  ) {
+    const newProduct = this.productRepository.create(createProductDto);
+
+    const savedProduct = await this.productRepository.save(newProduct);
+
+    if (imgs?.length) {
+      savedProduct.productImg = await this.minioClientService.uploadProductImgs(
+        savedProduct,
+        imgs,
+        'product',
+      );
+    }
+
+    await this.productRepository.save(savedProduct);
 
     await this.cacheManager.del('products');
 

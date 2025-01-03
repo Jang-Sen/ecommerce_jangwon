@@ -1,8 +1,8 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
   IsEmail,
   IsNotEmpty,
-  IsNumber,
+  IsOptional,
   IsString,
   Matches,
   MinLength,
@@ -23,21 +23,26 @@ export class CreateUserDto {
   email: string;
 
   @IsString()
+  @IsOptional()
   @MinLength(7)
   @Matches(/^(?=.*[A-Za-z])(?=.*\d)(?=.*[$@$!%*#?&])[A-Za-z\d$@$!%*#?&]{8,}$/) //최소 8 자, 최소 하나의 문자, 하나의 숫자 및 하나의 특수 문자
-  @ApiProperty({ example: '123456a!' })
+  @ApiPropertyOptional({ example: '123456a!' })
   password?: string;
 
-  @IsNumber()
-  @ApiProperty({ example: 1012345678 })
-  phone?: number;
+  @IsString()
+  @IsOptional()
+  @ApiPropertyOptional({ example: '01095110662' })
+  phone?: string;
 
   @IsString()
+  @IsOptional()
   provider?: Provider;
 
   @IsString()
+  @IsOptional()
   profileImg?: string;
 
+  @IsOptional()
   @ApiProperty({ type: CreateAgreeOfTermDto })
   agreeOfTerm?: AgreeOfTerm;
 }

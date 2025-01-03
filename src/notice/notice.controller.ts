@@ -40,6 +40,7 @@ export class NoticeController {
   }
 
   @Get('/:id')
+  @UseInterceptors(FilesInterceptor('files'))
   @ApiOperation({ summary: '상세(id) 조회' })
   @ApiParam({ name: 'id', description: '공지사항 ID' })
   async getNoticeById(@Param('id') id: string) {
@@ -48,9 +49,43 @@ export class NoticeController {
 
   @Post()
   @ApiOperation({ summary: '생성' })
-  @ApiBody({ type: CreateNoticeDto })
-  async createNotice(@Body() dto: CreateNoticeDto) {
-    return await this.noticeService.createNotice(dto);
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        title: {
+          type: 'string',
+          example: '배송에 관한 공지사항',
+          description: '제목',
+        },
+        category: {
+          type: 'string',
+          example: '공지',
+          description: '글 분류',
+        },
+        description: {
+          type: 'string',
+          example:
+            '12/15 ~ 12/30 까지 배송물이 많이 밀려있어, 배송이 지연될 수 있음을 알립니다. 이용에 불편을 드려서 죄송합니다.',
+          description: '상세 글',
+        },
+        files: {
+          type: 'array',
+          description: '공지사항 파일',
+          items: {
+            type: 'string',
+            format: 'binary',
+          },
+        },
+      },
+    },
+  })
+  @ApiConsumes('multipart/form-data')
+  async createNotice(
+    @Body() dto: CreateNoticeDto,
+    @UploadedFiles() files: BufferedFile[],
+  ) {
+    return await this.noticeService.createNotice(dto, files);
   }
 
   @Delete('/:id')
@@ -65,18 +100,31 @@ export class NoticeController {
   @ApiOperation({ summary: '수정' })
   @ApiParam({ name: 'id', description: '공지사항 ID' })
   @ApiBody({
-    type: CreateNoticeDto,
-  })
-  @ApiBody({
     schema: {
       type: 'object',
       properties: {
+        title: {
+          type: 'string',
+          example: '배송에 관한 공지사항',
+          description: '제목',
+        },
+        category: {
+          type: 'string',
+          example: '공지',
+          description: '글 분류',
+        },
+        description: {
+          type: 'string',
+          example:
+            '12/15 ~ 12/30 까지 배송물이 많이 밀려있어, 배송이 지연될 수 있음을 알립니다. 이용에 불편을 드려서 죄송합니다.',
+          description: '상세 글',
+        },
         files: {
           type: 'array',
+          description: '공지사항 파일',
           items: {
             type: 'string',
             format: 'binary',
-            description: 'Notice Files',
           },
         },
       },

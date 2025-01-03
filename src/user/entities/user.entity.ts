@@ -29,7 +29,7 @@ export class User extends Base {
   public password?: string;
 
   @Column({ nullable: true })
-  public phone?: number;
+  public phone?: string;
 
   @Column({ nullable: true })
   public profileImg?: string;
