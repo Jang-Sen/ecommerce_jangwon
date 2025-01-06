@@ -4,7 +4,7 @@ import { Comment } from '@root/comment/entities/comment.entity';
 
 @Entity()
 export class Product extends Base {
-  @Column({ unique: true })
+  @Column()
   public name: string;
 
   @Column()

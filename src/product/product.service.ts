@@ -51,14 +51,14 @@ export class ProductService {
 
     const pageMetaDto = new PageMetaDto({ itemCount, pageOptionsDto });
 
-    if (cacheProduct) {
-      console.log('Redis');
-      return new PageDto(cacheProduct, pageMetaDto);
-    } else {
-      console.log('Postgres');
-      await this.cacheManager.set('products', entities);
-      return new PageDto(entities, pageMetaDto);
-    }
+    // if (cacheProduct) {
+    // console.log('Redis');
+    // return new PageDto(cacheProduct, pageMetaDto);
+    // } else {
+    //   console.log('Postgres');
+    // await this.cacheManager.set('products', entities);
+    return new PageDto(entities, pageMetaDto);
+    // }
   }
 
   async getProductById(productId: string) {

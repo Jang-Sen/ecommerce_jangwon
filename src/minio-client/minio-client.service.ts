@@ -186,7 +186,7 @@ export class MinioClientService {
       });
 
       uploadedUrls.push(
-        `http://${this.configService.get('MINIO_ENDPOINT')}:${this.configService.get('MINIO_PORT')}/${this.configService.get('MINIO_BUCKET')}/${filePath}`,
+        `http://localhost:${this.configService.get('MINIO_PORT')}/${this.configService.get('MINIO_BUCKET')}/${filePath}`,
       );
     }
 
@@ -267,7 +267,7 @@ export class MinioClientService {
     console.log(
       `http://${this.configService.get('MINIO_ENDPOINT')}:${this.configService.get('MINIO_PORT')}/${this.configService.get('MINIO_BUCKET')}/${filePath}`,
     );
-    return `http://${this.configService.get('MINIO_ENDPOINT')}:${this.configService.get('MINIO_PORT')}/${this.configService.get('MINIO_BUCKET')}/${filePath}`;
+    return `http://localhost:${this.configService.get('MINIO_PORT')}/${this.configService.get('MINIO_BUCKET')}/${filePath}`;
   }
 
   // 프로필 사진 업로드 전, 기존 파일 삭제 로직
