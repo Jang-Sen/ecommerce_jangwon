@@ -158,7 +158,7 @@ export class UserService {
     user: User,
     img?: BufferedFile,
     updateUserDto?: CreateUserDto,
-  ): Promise<string> {
+  ): Promise<User> {
     const profileImg = await this.minioClientService.uploadProfileImg(
       user,
       img,
@@ -174,6 +174,6 @@ export class UserService {
       throw new HttpException('Not Found User', HttpStatus.NO_CONTENT);
     }
 
-    return 'success';
+    return await this.getUserBy('id', user.id);
   }
 }

@@ -79,7 +79,7 @@ export class AuthController {
 
     // return { user, accessToken, refreshToken };
 
-    res.send({ user });
+    res.send({ user, accessToken });
   }
 
   // RefreshToken API -> AccessToken을 갱신하는 용도
