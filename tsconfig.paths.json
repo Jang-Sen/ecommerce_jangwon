@@ -32,6 +32,9 @@
       "@product/*": [
         "./src/product/*"
       ],
+      "@profile/*": [
+        "./src/profile/*"
+      ],
       "@redis/*": [
         "./src/redis/*"
       ],

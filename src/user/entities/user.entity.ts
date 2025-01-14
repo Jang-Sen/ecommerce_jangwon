@@ -14,6 +14,7 @@ import { AgreeOfTerm } from '@root/agreeOfTerm/entities/agree-of-term.entity';
 import { Role } from '@user/entities/role.enum';
 import { Base } from '@common/entities/base.entity';
 import { Comment } from '@root/comment/entities/comment.entity';
+import { Profile } from '@root/profile/entities/profile.entity';
 
 @Entity()
 export class User extends Base {
@@ -49,6 +50,13 @@ export class User extends Base {
   })
   @Exclude()
   public roles: Role[];
+
+  @OneToOne(() => Profile, {
+    eager: true,
+    cascade: true,
+  })
+  @JoinColumn()
+  public profile: Profile;
 
   @OneToOne(() => AgreeOfTerm, {
     eager: true,
