@@ -23,6 +23,7 @@ import { RequestWithUserInterface } from '@auth/interfaces/requestWithUser.inter
 import { BufferedFile } from '@minio-client/interface/file.model';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { RoleGuard } from '@auth/guards/role.guard';
+import { UpdateUserDto } from '@user/dto/update-user.dto';
 
 @ApiTags('User')
 @Controller('user')
@@ -51,6 +52,12 @@ export class UserController {
     return await this.userService.getUserBy('id', id);
   }
 
+  @Get('/check/:email')
+  @ApiOperation({ summary: 'Email로 회원 조회' })
+  async findByUserEmail(@Param('email') email: string) {
+    return await this.userService.getUserBy('email', email);
+  }
+
   @Put()
   @UseGuards(AccessTokenGuard)
   @UseInterceptors(FileInterceptor('img'))
@@ -60,6 +67,10 @@ export class UserController {
     schema: {
       type: 'object',
       properties: {
+        username: {
+          type: 'string',
+          description: 'username',
+        },
         img: {
           type: 'string',
           format: 'binary',
@@ -70,11 +81,11 @@ export class UserController {
   })
   @ApiConsumes('multipart/form-data')
   @ApiOperation({
-    summary: '회원 프로필 사진 변경',
+    summary: '회원 프로필 변경',
   })
   async updateUserImg(
     @Req() req: RequestWithUserInterface,
-    @Body() updateUserDto?: CreateUserDto,
+    @Body() updateUserDto?: UpdateUserDto,
     @UploadedFile() img?: BufferedFile,
   ): Promise<User> {
     return await this.userService.updateUserInfoByToken(

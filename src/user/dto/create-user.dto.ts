@@ -10,6 +10,8 @@ import {
 import { Provider } from '@user/entities/provider.enum';
 import { CreateAgreeOfTermDto } from '@root/agreeOfTerm/dto/create-agree-of-term.dto';
 import { AgreeOfTerm } from '@root/agreeOfTerm/entities/agree-of-term.entity';
+import { Profile } from '@profile/entities/profile.entity';
+import { CreateProfileDto } from '@profile/dto/create-profile.dto';
 
 export class CreateUserDto {
   @IsString()
@@ -45,4 +47,8 @@ export class CreateUserDto {
   @IsOptional()
   @ApiProperty({ type: CreateAgreeOfTermDto })
   agreeOfTerm?: AgreeOfTerm;
+
+  @IsOptional()
+  @ApiPropertyOptional({ type: CreateProfileDto })
+  profile?: Profile;
 }

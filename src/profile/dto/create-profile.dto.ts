@@ -7,6 +7,8 @@ export class CreateProfileDto {
   @IsOptional()
   @ApiPropertyOptional({
     description: '생년월일',
+    example: null,
+    default: null,
   })
   birth?: Date;
 
@@ -17,6 +19,7 @@ export class CreateProfileDto {
     enum: Gender,
     enumName: 'Gender',
     example: Gender.DEFAULT,
+    default: Gender.DEFAULT,
   })
   gender: Gender;
 
@@ -24,6 +27,7 @@ export class CreateProfileDto {
   @IsOptional()
   @ApiPropertyOptional({
     description: '한 줄 소개',
+    default: null,
   })
   introduce?: string;
 
@@ -31,6 +35,7 @@ export class CreateProfileDto {
   @IsOptional()
   @ApiPropertyOptional({
     description: 'SNS 링크',
+    default: null,
   })
   snsLink?: string;
 }

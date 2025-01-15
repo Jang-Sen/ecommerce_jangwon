@@ -10,7 +10,7 @@ export class Profile extends Base {
   public user: User;
 
   // 생년월일
-  @Column()
+  @Column({ nullable: true })
   public birth?: Date;
 
   // 성별 (Enum)
@@ -22,10 +22,10 @@ export class Profile extends Base {
   public gender: Gender;
 
   // 한줄 소개
-  @Column()
+  @Column({ nullable: true })
   public introduce?: string;
 
   // sns 링크
-  @Column()
+  @Column({ nullable: true })
   public snsLink?: string;
 }

@@ -21,6 +21,7 @@ import { PageDto } from '@root/common/dto/page.dto';
 import { PageMetaDto } from '@root/common/dto/page-meta.dto';
 import { MinioClientService } from '@minio-client/minio-client.service';
 import { BufferedFile } from '@minio-client/interface/file.model';
+import { UpdateUserDto } from '@user/dto/update-user.dto';
 
 @Injectable()
 export class UserService {
@@ -153,20 +154,41 @@ export class UserService {
     return '--------------';
   }
 
-  // 유저의 토큰을 이용해 프로필 사진 수정 로직
+  // 유저의 토큰을 이용해 프로필 수정 로직
   async updateUserInfoByToken(
     user: User,
     img?: BufferedFile,
-    updateUserDto?: CreateUserDto,
+    updateUserDto?: UpdateUserDto,
   ): Promise<User> {
-    const profileImg = await this.minioClientService.uploadProfileImg(
-      user,
-      img,
-      'profile',
-    );
+    let profileImg = user.profileImg;
+
+    if (img) {
+      profileImg = await this.minioClientService.uploadProfileImg(
+        user,
+        img,
+        'profile',
+      );
+    }
+
+    const existingUser = await this.userRepository.findOne({
+      where: {
+        id: user.id,
+      },
+      relations: ['profile'],
+    });
+
+    if (!existingUser) {
+      throw new HttpException('Not Found User', HttpStatus.NO_CONTENT);
+    }
+
+    const updatedProfile = {
+      ...existingUser.profile,
+      ...updateUserDto.profile,
+    };
 
     const response = await this.userRepository.update(user.id, {
       ...updateUserDto,
+      profile: updatedProfile,
       profileImg,
     });
 
