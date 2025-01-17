@@ -6,7 +6,7 @@ import { AccessTokenGuard } from '@auth/guards/accessToken.guard';
 import { RequestWithUserInterface } from '@auth/interfaces/requestWithUser.interface';
 import { UpdateAgreeOfTermDto } from '@root/agreeOfTerm/dto/update-agree-of-term.dto';
 
-@ApiTags('terms')
+@ApiTags('Terms')
 @Controller('terms')
 export class AgreeOfTermController {
   constructor(private readonly agreeOfTermService: AgreeOfTermService) {}
