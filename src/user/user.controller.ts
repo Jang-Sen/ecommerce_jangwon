@@ -70,11 +70,32 @@ export class UserController {
         username: {
           type: 'string',
           description: 'username',
+          example: '오장원',
         },
         img: {
           type: 'string',
           format: 'binary',
           description: 'profileImg',
+        },
+        'profile.birth': {
+          type: 'string',
+          description: '생년월일',
+          example: '1998-05-08',
+        },
+        'profile.gender': {
+          type: 'string',
+          description: '성별',
+          example: 'MALE',
+        },
+        'profile.introduce': {
+          type: 'string',
+          description: '한 줄 소개',
+          example: '안녕하세요. 오장원입니다.',
+        },
+        'profile.snsLink': {
+          type: 'string',
+          description: 'SNS 링크',
+          example: 'https://www.naver.com',
         },
       },
     },

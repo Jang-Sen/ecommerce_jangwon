@@ -181,20 +181,20 @@ export class UserService {
       throw new HttpException('Not Found User', HttpStatus.NO_CONTENT);
     }
 
-    const updatedProfile = {
-      ...existingUser.profile,
-      ...updateUserDto.profile,
-    };
-
-    const response = await this.userRepository.update(user.id, {
-      ...updateUserDto,
-      profile: updatedProfile,
-      profileImg,
-    });
-
-    if (!response.affected) {
-      throw new HttpException('Not Found User', HttpStatus.NO_CONTENT);
+    if (updateUserDto?.profile) {
+      existingUser.profile = {
+        ...existingUser.profile,
+        ...updateUserDto.profile,
+      };
     }
+
+    if (profileImg) {
+      existingUser.profileImg = profileImg;
+    }
+
+    Object.assign(existingUser, updateUserDto);
+
+    await this.userRepository.save(existingUser);
 
     return await this.getUserBy('id', user.id);
   }
