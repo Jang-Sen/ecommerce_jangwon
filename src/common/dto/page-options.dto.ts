@@ -15,6 +15,7 @@ export class PageOptionsDto {
     enum: Sort,
     default: Sort.CREATED_AT,
   })
+  // @Field(() => String, { defaultValue: Sort.CREATED_AT })
   readonly sort?: Sort = Sort.CREATED_AT;
 
   @IsOptional()
@@ -24,6 +25,7 @@ export class PageOptionsDto {
     enum: Order,
     default: Order.ASC,
   })
+  // @Field(() => String, { defaultValue: Order.ASC })
   readonly order?: Order = Order.ASC;
 
   @IsOptional()
@@ -32,6 +34,7 @@ export class PageOptionsDto {
     minimum: 1,
     default: 1,
   })
+  // @Field(() => Int, { defaultValue: 1 })
   // @Type(() => Number)
   // @IsInt()
   // @Min(1)
@@ -44,6 +47,7 @@ export class PageOptionsDto {
     maximum: 50,
     default: 10,
   })
+  // @Field(() => Int, { defaultValue: 10 })
   // @Min(1)
   // @Max(50)
   // @IsInt()

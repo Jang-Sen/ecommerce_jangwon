@@ -16,6 +16,9 @@ import { AgreeOfTermModule } from '@root/agreeOfTerm/agree-of-term.module';
 import { CommentModule } from './comment/comment.module';
 import { MovieModule } from '@movie/movie.module';
 import { ProfileModule } from '@profile/profile.module';
+import { GraphQLModule } from '@nestjs/graphql';
+import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
+import { join } from 'path';
 
 @Module({
   imports: [
@@ -69,6 +72,13 @@ import { ProfileModule } from '@profile/profile.module';
         MOVIE_URL: Joi.string().required(),
         MOVIE_TOKEN: Joi.string().required(),
       }),
+    }),
+    GraphQLModule.forRoot<ApolloDriverConfig>({
+      autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
+      driver: ApolloDriver,
+      context: ({ req }) => ({ req }),
+      playground: true, // 개발 편의성 추가
+      debug: true,
     }),
     DatabaseModule,
     ProductModule,

@@ -21,6 +21,10 @@ export class ProductService {
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}
 
+  async getTotalProducts(): Promise<Product[]> {
+    return await this.productRepository.find();
+  }
+
   async getAllProducts(
     pageOptionsDto: PageOptionsDto,
   ): Promise<PageDto<Product>> {
@@ -41,7 +45,7 @@ export class ProductService {
     // }
 
     queryBuilder
-      .leftJoinAndSelect('product.comments', 'comment')
+      // .leftJoinAndSelect('product.comments', 'comment')
       .orderBy(`product.${pageOptionsDto.sort}`, pageOptionsDto.order)
       .skip(pageOptionsDto.skip)
       .take(pageOptionsDto.take);

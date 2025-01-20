@@ -1,19 +1,24 @@
-import { Column, Entity, OneToMany } from 'typeorm';
+import { Column, Entity } from 'typeorm';
 import { Base } from '@common/entities/base.entity';
-import { Comment } from '@root/comment/entities/comment.entity';
+import { Field, ObjectType } from '@nestjs/graphql';
 
 @Entity()
+@ObjectType()
 export class Product extends Base {
   @Column()
+  @Field()
   public name: string;
 
   @Column()
+  @Field()
   public price: number;
 
   @Column()
+  @Field()
   public description: string;
 
   @Column()
+  @Field()
   public category: string;
 
   @Column({
@@ -21,8 +26,10 @@ export class Product extends Base {
     array: true,
     nullable: true,
   })
+  @Field(() => [String])
   public productImg?: string[];
 
-  @OneToMany(() => Comment, (comment: Comment) => comment.product)
-  public comments: Comment[];
+  // @OneToMany(() => Comment, (comment: Comment) => comment.product)
+  // @Field(() => [Comment])
+  // public comments: Comment[];
 }

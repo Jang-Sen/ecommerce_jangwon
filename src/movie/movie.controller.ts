@@ -1,5 +1,5 @@
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post } from '@nestjs/common';
 import { MovieService } from '@movie/movie.service';
 import { Movie } from '@movie/entities/movie.entity';
 import { MovieUrlDto } from '@movie/dto/movie-url.dto';
@@ -13,6 +13,11 @@ export class MovieController {
   @ApiOperation({ summary: '영화 등록' })
   async create(@Body() dto: MovieUrlDto): Promise<Movie[]> {
     const { resource, language, page } = dto;
-    return await this.movieService.createMovie(resource, language, page);
+    return await this.movieService.createMovieByTMDB(resource, language, page);
+  }
+
+  @Get()
+  async getAllMovies() {
+    return await this.movieService.getAllMovie();
   }
 }
