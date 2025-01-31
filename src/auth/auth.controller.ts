@@ -24,7 +24,7 @@ import { ChangePasswordDto } from '@user/dto/change-password.dto';
 import { UserService } from '@user/user.service';
 import { RefreshTokenGuard } from '@auth/guards/refreshToken.guard';
 import { Response } from 'express';
-import { Throttle, ThrottlerGuard } from '@nestjs/throttler';
+import { ThrottlerGuard } from '@nestjs/throttler';
 import { EmailValificationDto } from '@user/dto/email-valification.dto';
 
 @ApiTags('Auth')
@@ -103,12 +103,12 @@ export class AuthController {
   @Get()
   @UseGuards(AccessTokenGuard)
   @UseGuards(ThrottlerGuard)
-  @Throttle({
-    default: {
-      limit: 3, // 3번까지 허용
-      ttl: 60000, // 1분 동안
-    },
-  })
+  // @Throttle({
+  //   default: {
+  //     limit: 3, // 3번까지 허용
+  //     ttl: 60000, // 1분 동안
+  //   },
+  // })
   @ApiBearerAuth()
   @ApiOperation({
     summary: '개인 정보 API',
@@ -144,7 +144,9 @@ export class AuthController {
 
     res.setHeader('Set-Cookie', [accessTokenCookie, refreshTokenCookie]);
 
-    res.send({ user });
+    // res.send({ user, accessToken });
+
+    res.redirect('http://localhost');
   }
 
   // 카카오 로그인
@@ -176,7 +178,9 @@ export class AuthController {
 
     // return { user, accessToken, refreshToken };
 
-    res.send({ user });
+    // res.send({ user, accessToken });
+
+    res.redirect('http://localhost');
   }
 
   @Get('/naver')
@@ -203,7 +207,7 @@ export class AuthController {
 
     res.setHeader('Set-Cookie', [accessTokenCookie, refreshTokenCookie]);
 
-    res.send({ user });
+    res.send({ user, accessToken });
   }
 
   // 이메일 확인용
