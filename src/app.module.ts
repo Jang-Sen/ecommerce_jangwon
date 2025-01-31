@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import * as Joi from '@hapi/joi';
 import { AuthModule } from '@auth/auth.module';
@@ -19,6 +19,7 @@ import { ProfileModule } from '@profile/profile.module';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { join } from 'path';
+import { LoggingMiddleware } from '@common/middlewares/logging.middleware';
 
 @Module({
   imports: [
@@ -97,4 +98,8 @@ import { join } from 'path';
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer): any {
+    consumer.apply(LoggingMiddleware).forRoutes('*');
+  }
+}
