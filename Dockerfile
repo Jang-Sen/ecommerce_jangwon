@@ -42,6 +42,8 @@ USER node
 
 FROM node:18-alpine As production
 
+WORKDIR /usr/src/backend
+
 COPY --chown=node:node --from=build /usr/src/backend/node_modules ./node_modules
 COPY --chown=node:node --from=build /usr/src/backend/dist ./dist
 
