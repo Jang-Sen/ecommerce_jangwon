@@ -144,9 +144,7 @@ export class AuthController {
 
     res.setHeader('Set-Cookie', [accessTokenCookie, refreshTokenCookie]);
 
-    // res.send({ user, accessToken });
-
-    res.redirect('http://localhost');
+    res.send({ user, accessToken });
   }
 
   // 카카오 로그인
@@ -178,9 +176,7 @@ export class AuthController {
 
     // return { user, accessToken, refreshToken };
 
-    // res.send({ user, accessToken });
-
-    res.redirect('http://localhost');
+    res.send({ user, accessToken });
   }
 
   @Get('/naver')

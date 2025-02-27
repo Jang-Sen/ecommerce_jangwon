@@ -1,9 +1,14 @@
-import { NestFactory } from '@nestjs/core';
+import { NestFactory, Reflector } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { ValidationPipe, VersioningType } from '@nestjs/common';
+import {
+  ClassSerializerInterceptor,
+  ValidationPipe,
+  VersioningType,
+} from '@nestjs/common';
 import * as cookieParser from 'cookie-parser';
 import { ConfigService } from '@nestjs/config';
+import { TransformInterceptor } from '@common/interceptors/transform.interceptor';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -26,10 +31,10 @@ async function bootstrap() {
       transform: true,
     }),
   );
-  // app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
+  app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
 
   // 프로젝트 전체에 Interceptor 적용 방식
-  // app.useGlobalInterceptors(new TransformInterceptor());
+  app.useGlobalInterceptors(new TransformInterceptor());
 
   // Swagger 환경변수
   const config = new DocumentBuilder()
@@ -38,8 +43,8 @@ async function bootstrap() {
     .addBearerAuth()
     .setVersion('1.0')
     .addServer('http://localhost/api')
-    .addServer('http://211.49.53.89:8000')
-    .addServer('http://211.49.53.89/api')
+    .addServer('http://jangsen.duckdns.org/api')
+    // .addServer('http://211.49.53.89:8000')
     .addTag('ecommerce')
     .build();
 
@@ -47,6 +52,7 @@ async function bootstrap() {
   SwaggerModule.setup('api-docs', app, document);
 
   const port = configService.get('BACKEND_PORT') ?? 7070;
+  // const host = configService.get('BACKEND_HOST');
 
   await app.listen(port);
 }
