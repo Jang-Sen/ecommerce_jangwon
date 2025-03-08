@@ -31,11 +31,17 @@ export class ProductController {
 
   // product 전체 데이터 불러오는 api
   @Get('/all')
-  @ApiOperation({ summary: '전체 조회 API' })
+  @ApiOperation({ summary: '전체 조회 API 페이지네이션' })
   async getAllProducts(
     @Query() pageOptionsDto: PageOptionsDto,
   ): Promise<PageDto<Product>> {
     return await this.productService.getAllProducts(pageOptionsDto);
+  }
+
+  @Get()
+  @ApiOperation({ summary: '전체 조회 API' })
+  async getAll(): Promise<Product[]> {
+    return await this.productService.getTotalProducts();
   }
 
   // product 상세(id) 데이터 불러오는 api

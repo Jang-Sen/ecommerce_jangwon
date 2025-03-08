@@ -19,17 +19,38 @@ export class ProductService {
     private productRepository: Repository<Product>,
     private readonly minioClientService: MinioClientService,
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
+    // @Inject('REDIS_CLIENT') private redisClient: RedisClientType,
   ) {}
 
-  async getTotalProducts(): Promise<Product[]> {
-    return await this.productRepository.find();
+  async getTotalProducts(): Promise<any> {
+    const redisData = await this.cacheManager.get('products');
+    const products = await this.productRepository.find();
+
+    if (redisData) {
+      console.log('Redis Data');
+      return redisData;
+    }
+    console.log('RDB Data');
+    await this.cacheManager.set('products', products);
+
+    return products;
   }
 
-  async getAllProducts(
-    pageOptionsDto: PageOptionsDto,
-  ): Promise<PageDto<Product>> {
+  async getAllProducts(pageOptionsDto: PageOptionsDto): Promise<PageDto<any>> {
     // return await this.productRepository.find();
-    const cacheProduct: any = await this.cacheManager.get('products');
+    const cacheKey: any = `products:${JSON.stringify(pageOptionsDto)}`;
+
+    const cacheData = await this.cacheManager.get<PageDto<Product>>(cacheKey);
+
+    const keys = await this.cacheManager.get('products:*');
+
+    console.log(keys);
+
+    // console.log('@@@@@@@@@@@', cacheData);
+
+    if (cacheData) {
+      return cacheData;
+    }
 
     const queryBuilder = this.productRepository.createQueryBuilder('product');
 
@@ -53,16 +74,15 @@ export class ProductService {
     const itemCount = await queryBuilder.getCount();
     const { entities } = await queryBuilder.getRawAndEntities();
 
+    // console.log('!!!!!!!!!!', entities);
+
     const pageMetaDto = new PageMetaDto({ itemCount, pageOptionsDto });
 
-    // if (cacheProduct) {
-    // console.log('Redis');
-    // return new PageDto(cacheProduct, pageMetaDto);
-    // } else {
-    //   console.log('Postgres');
-    // await this.cacheManager.set('products', entities);
-    return new PageDto(entities, pageMetaDto);
-    // }
+    const result = new PageDto(entities, pageMetaDto);
+
+    await this.cacheManager.set(cacheKey, result);
+
+    return result;
   }
 
   async getProductById(productId: string) {
@@ -92,7 +112,9 @@ export class ProductService {
 
     await this.productRepository.save(savedProduct);
 
-    await this.cacheManager.del('products');
+    // const keys = await this.getMatchingKeys('products:*');
+
+    await this.cacheManager.del('products:*');
 
     return newProduct;
   }
@@ -128,10 +150,28 @@ export class ProductService {
       productImg: newProductUrlImgs,
     });
 
+    await this.cacheManager.del('products');
+
     if (!updateProduct) {
       throw new NotFoundException('Product Not Found');
     }
 
     return updateProduct;
   }
+
+  // async getMatchingKeys(pattern: string): Promise<string[]> {
+  //   const keys: string[] = [];
+  //   let cursor = 0;
+  //
+  //   do {
+  //     const reply = await this.redisClient.scan(cursor, {
+  //       MATCH: pattern,
+  //       COUNT: 100,
+  //     });
+  //     cursor = reply.cursor;
+  //     keys.push(...reply.keys);
+  //   } while (cursor !== 0);
+  //
+  //   return keys;
+  // }
 }
